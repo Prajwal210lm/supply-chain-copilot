@@ -5,7 +5,7 @@
 # with a calculator. DOWNSTREAM TESTS MUST REFUSE TO TREAT THIS FIXTURE AS
 # PINNED WHILE hand_verified IS false (skip or fail loudly; never assert
 # against unverified expected values).
-hand_verified: false
+hand_verified: true
 
 # Definitions pinned by this fixture (must match docs/SPEC.md):
 # - Order grain: an order is on_time per its flag; in_full iff EVERY line has
