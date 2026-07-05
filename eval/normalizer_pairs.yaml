@@ -1,0 +1,87 @@
+# normalizer_pairs.yaml — pins the spec normalizer BEFORE it exists.
+#
+# Each pair holds two specs that are semantically identical but textually
+# different. The future normalizer must map spec_a and spec_b to the same
+# canonical form; equality tests compare normalize(spec_a) == normalize(spec_b).
+#
+# Note on pair p1: the locked grammar has only month|week period grains, but
+# models will occasionally emit quarter tokens. The normalizer tolerates that
+# input variant and canonicalizes it to the month range; the canonical form is
+# always the month range, never the quarter token.
+
+pairs:
+
+  - id: p1_quarter_vs_month_range
+    equivalent: true
+    spec_a:
+      spec_type: metric_query
+      metric: revenue
+      period: {grain: quarter, start: "2026-Q2", end: "2026-Q2"}
+    spec_b:
+      spec_type: metric_query
+      metric: revenue
+      period: {grain: month, start: "2026-04", end: "2026-06"}
+
+  - id: p2_filter_order_permutation
+    equivalent: true
+    spec_a:
+      spec_type: metric_query
+      metric: otif_pct
+      period: {grain: month, start: "2026-05", end: "2026-05"}
+      filters:
+        - {dimension: emirate, values: ["dubai"]}
+        - {dimension: customer_segment, values: ["modern trade"]}
+    spec_b:
+      spec_type: metric_query
+      metric: otif_pct
+      period: {grain: month, start: "2026-05", end: "2026-05"}
+      filters:
+        - {dimension: customer_segment, values: ["modern trade"]}
+        - {dimension: emirate, values: ["dubai"]}
+
+  - id: p3_default_top_n_explicit_vs_omitted
+    equivalent: true
+    spec_a:
+      spec_type: breakdown_query
+      metric: revenue
+      period: {grain: month, start: "2026-04", end: "2026-06"}
+      dimension: category
+      top_n: 10
+      sort: desc
+    spec_b:
+      spec_type: breakdown_query
+      metric: revenue
+      period: {grain: month, start: "2026-04", end: "2026-06"}
+      dimension: category
+      sort: desc
+
+  - id: p4_sort_omitted_vs_explicit_desc
+    equivalent: true
+    spec_a:
+      spec_type: breakdown_query
+      metric: stockout_count
+      period: {grain: month, start: "2026-05", end: "2026-05"}
+      dimension: dc
+      top_n: 10
+    spec_b:
+      spec_type: breakdown_query
+      metric: stockout_count
+      period: {grain: month, start: "2026-05", end: "2026-05"}
+      dimension: dc
+      top_n: 10
+      sort: desc
+
+  - id: p5_values_order_permutation
+    equivalent: true
+    spec_a:
+      spec_type: metric_query
+      metric: fill_rate_pct
+      period: {grain: month, start: "2026-06", end: "2026-06"}
+      filters:
+        - {dimension: emirate, values: ["dubai", "sharjah", "abu dhabi"]}
+    spec_b:
+      spec_type: metric_query
+      metric: fill_rate_pct
+      period: {grain: month, start: "2026-06", end: "2026-06"}
+      filters:
+        - {dimension: emirate, values: ["abu dhabi", "dubai", "sharjah"]}

@@ -1,0 +1,92 @@
+# days_of_cover_fixture.yaml — hand-math fixture for days_of_cover and
+# inventory_value on the 2026-06 snapshot.
+#
+# hand_verified is false until the builder has re-derived every worksheet line
+# with a calculator. DOWNSTREAM TESTS MUST REFUSE TO TREAT THIS FIXTURE AS
+# PINNED WHILE hand_verified IS false (skip or fail loudly; never assert
+# against unverified expected values).
+hand_verified: false
+
+# Definition pinned by this fixture:
+#   days_of_cover = on_hand_qty / (trailing 90-day demand qty / 90)
+# - The trailing 90-day demand is operationalized as the sum of the three
+#   trailing calendar months (2026-04 + 2026-05 + 2026-06, actually 91 days)
+#   TREATED AS 90 days. Implementations must match this convention exactly.
+# - Zero trailing demand => days_of_cover is NULL. Not infinity, not zero,
+#   not a sentinel number. NULL. (SKU-D at AUH below pins this.)
+# - DC-level aggregate = sum(on_hand_qty) / (sum(demand_90d) / 90), i.e.
+#   re-divide the sums — NEVER average the per-row days_of_cover values.
+#   Zero-demand rows still contribute their on_hand_qty to the aggregate
+#   numerator (SKU-D AUH's 30 units are inside the AUH aggregate).
+
+snapshots:   # month: 2026-06
+  - {sku: SKU-A, dc: JEB, month: "2026-06", on_hand_qty: 450, on_hand_value_aed: 4500}
+  - {sku: SKU-A, dc: AUH, month: "2026-06", on_hand_qty: 63,  on_hand_value_aed: 630}
+  - {sku: SKU-B, dc: JEB, month: "2026-06", on_hand_qty: 498, on_hand_value_aed: 2490}
+  - {sku: SKU-B, dc: AUH, month: "2026-06", on_hand_qty: 45,  on_hand_value_aed: 225}
+  - {sku: SKU-C, dc: JEB, month: "2026-06", on_hand_qty: 90,  on_hand_value_aed: 1800}
+  - {sku: SKU-C, dc: AUH, month: "2026-06", on_hand_qty: 21,  on_hand_value_aed: 420}
+  - {sku: SKU-D, dc: JEB, month: "2026-06", on_hand_qty: 12,  on_hand_value_aed: 600}
+  - {sku: SKU-D, dc: AUH, month: "2026-06", on_hand_qty: 30,  on_hand_value_aed: 1500}  # zero-demand SKU
+  - {sku: SKU-E, dc: JEB, month: "2026-06", on_hand_qty: 105, on_hand_value_aed: 840}
+  - {sku: SKU-E, dc: AUH, month: "2026-06", on_hand_qty: 3,   on_hand_value_aed: 24}
+
+trailing_90d_demand:   # monthly components shown so each sum is hand-checkable
+  - {sku: SKU-A, dc: JEB, demand_2026_04: 300, demand_2026_05: 280, demand_2026_06: 320, demand_90d: 900}   # 300+280+320
+  - {sku: SKU-A, dc: AUH, demand_2026_04: 150, demand_2026_05: 130, demand_2026_06: 170, demand_90d: 450}   # 150+130+170
+  - {sku: SKU-B, dc: JEB, demand_2026_04: 600, demand_2026_05: 570, demand_2026_06: 630, demand_90d: 1800}  # 600+570+630
+  - {sku: SKU-B, dc: AUH, demand_2026_04: 90,  demand_2026_05: 85,  demand_2026_06: 95,  demand_90d: 270}   # 90+85+95
+  - {sku: SKU-C, dc: JEB, demand_2026_04: 200, demand_2026_05: 160, demand_2026_06: 180, demand_90d: 540}   # 200+160+180
+  - {sku: SKU-C, dc: AUH, demand_2026_04: 100, demand_2026_05: 90,  demand_2026_06: 80,  demand_90d: 270}   # 100+90+80
+  - {sku: SKU-D, dc: JEB, demand_2026_04: 45,  demand_2026_05: 40,  demand_2026_06: 50,  demand_90d: 135}   # 45+40+50
+  - {sku: SKU-D, dc: AUH, demand_2026_04: 0,   demand_2026_05: 0,   demand_2026_06: 0,   demand_90d: 0}     # zero demand
+  - {sku: SKU-E, dc: JEB, demand_2026_04: 450, demand_2026_05: 420, demand_2026_06: 480, demand_90d: 1350}  # 450+420+480
+  - {sku: SKU-E, dc: AUH, demand_2026_04: 30,  demand_2026_05: 30,  demand_2026_06: 30,  demand_90d: 90}    # 30+30+30
+
+worksheet:
+  per_row_days_of_cover:   # every division shown
+    - "SKU-A JEB: 900 / 90 = 10.0 per day; 450 / 10.0 = 45.0"
+    - "SKU-A AUH: 450 / 90 = 5.0 per day;  63 / 5.0  = 12.6"
+    - "SKU-B JEB: 1800 / 90 = 20.0 per day; 498 / 20.0 = 24.9"
+    - "SKU-B AUH: 270 / 90 = 3.0 per day;  45 / 3.0  = 15.0"
+    - "SKU-C JEB: 540 / 90 = 6.0 per day;  90 / 6.0  = 15.0"
+    - "SKU-C AUH: 270 / 90 = 3.0 per day;  21 / 3.0  = 7.0"
+    - "SKU-D JEB: 135 / 90 = 1.5 per day;  12 / 1.5  = 8.0"
+    - "SKU-D AUH: demand_90d = 0 -> days_of_cover = NULL (not infinity, not zero)"
+    - "SKU-E JEB: 1350 / 90 = 15.0 per day; 105 / 15.0 = 7.0"
+    - "SKU-E AUH: 90 / 90 = 1.0 per day;   3 / 1.0   = 3.0"
+  dc_aggregates:
+    JEB:
+      on_hand_qty_sum: "450 + 498 + 90 + 12 + 105 = 1155"
+      demand_90d_sum: "900 + 1800 + 540 + 135 + 1350 = 4725"
+      daily_demand: "4725 / 90 = 52.5"
+      days_of_cover: "1155 / 52.5 = 22.0"
+    AUH:
+      on_hand_qty_sum: "63 + 45 + 21 + 30 + 3 = 162   (includes zero-demand SKU-D's 30)"
+      demand_90d_sum: "450 + 270 + 270 + 0 + 90 = 1080"
+      daily_demand: "1080 / 90 = 12.0"
+      days_of_cover: "162 / 12.0 = 13.5"
+  inventory_value:
+    JEB: "4500 + 2490 + 1800 + 600 + 840 = 10230"
+    AUH: "630 + 225 + 420 + 1500 + 24 = 2799"
+    total: "10230 + 2799 = 13029"
+
+expected:
+  days_of_cover_by_sku_dc:
+    - {sku: SKU-A, dc: JEB, days_of_cover: 45.0}
+    - {sku: SKU-A, dc: AUH, days_of_cover: 12.6}
+    - {sku: SKU-B, dc: JEB, days_of_cover: 24.9}
+    - {sku: SKU-B, dc: AUH, days_of_cover: 15.0}
+    - {sku: SKU-C, dc: JEB, days_of_cover: 15.0}
+    - {sku: SKU-C, dc: AUH, days_of_cover: 7.0}
+    - {sku: SKU-D, dc: JEB, days_of_cover: 8.0}
+    - {sku: SKU-D, dc: AUH, days_of_cover: null}   # zero demand -> NULL, pinned
+    - {sku: SKU-E, dc: JEB, days_of_cover: 7.0}
+    - {sku: SKU-E, dc: AUH, days_of_cover: 3.0}
+  days_of_cover_by_dc:
+    JEB: 22.0
+    AUH: 13.5
+  inventory_value_aed:
+    JEB: 10230
+    AUH: 2799
+    total: 13029

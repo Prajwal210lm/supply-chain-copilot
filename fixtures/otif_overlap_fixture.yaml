@@ -1,0 +1,43 @@
+# otif_overlap_fixture.yaml — minimal hand-math fixture pinning the OTIF
+# union rule (on_time AND in_full), not a sum of failure counts.
+#
+# hand_verified is false until the builder has re-derived every worksheet line
+# with a calculator. DOWNSTREAM TESTS MUST REFUSE TO TREAT THIS FIXTURE AS
+# PINNED WHILE hand_verified IS false (skip or fail loudly; never assert
+# against unverified expected values).
+hand_verified: false
+
+# Purpose: reject any OTIF formula that computes non-otif_count as
+# late_count + short_count instead of the UNION of {late orders} and
+# {short orders}. Order D is both late AND short-shipped, so a naive sum
+# double-counts it: late_count(2) + short_count(2) = 4 -> otif = (4-4)/4 = 0.0,
+# which is wrong. The correct union of failing orders is {B, C, D} = 3,
+# giving otif_pct = 1/4 = 25.0. This fixture exists purely to catch that
+# double-counting bug; on_time_pct and in_full_pct alone cannot catch it.
+
+orders:
+  - {order_id: ORD-A, on_time: true,  lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 20}]}   # on-time, in-full
+  - {order_id: ORD-B, on_time: false, lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 20}]}   # late, in-full
+  - {order_id: ORD-C, on_time: true,  lines: [{qty_ordered: 10, qty_delivered: 6,  unit_price_aed: 20}]}   # on-time, short-shipped
+  - {order_id: ORD-D, on_time: false, lines: [{qty_ordered: 10, qty_delivered: 6,  unit_price_aed: 20}]}   # late, short-shipped (both failures)
+
+worksheet:
+  on_time_orders: "A, C = 2 of 4"
+  on_time_pct: "2 / 4 = 50.0"
+  in_full_orders: "A, B = 2 of 4"
+  in_full_pct: "2 / 4 = 50.0"
+  otif_orders: "on_time AND in_full = {A,C} intersect {A,B} = {A} = 1 of 4"
+  otif_pct: "1 / 4 = 25.0"
+  naive_wrong_formula_check:
+    late_count: "B, D = 2"
+    short_count: "C, D = 2"
+    naive_sum: "late_count + short_count = 2 + 2 = 4 (double-counts D)"
+    naive_wrong_otif_pct: "(4 - 4) / 4 = 0.0  <-- WRONG, must not match expected.otif_pct"
+    correct_union_of_failures: "{B, C, D} = 3 (D counted once)"
+    correct_otif_pct: "(4 - 3) / 4 = 1 / 4 = 25.0  <-- matches expected.otif_pct"
+
+expected:
+  order_count: 4
+  on_time_pct: 50.0
+  in_full_pct: 50.0
+  otif_pct: 25.0

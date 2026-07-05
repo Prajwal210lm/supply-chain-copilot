@@ -1,0 +1,218 @@
+{
+  "generated_by": "data/generate.py",
+  "seed": 20240701,
+  "stories": [
+    {
+      "story": 1,
+      "name": "March 2026 OTIF drop (Anadolu / SUP-07 shipment delay)",
+      "planted": "SUP-07 (Anadolu Consumer Goods) shipments promised Feb-Mar 2026 arrive 70-85 days late instead of the standard 42, disproportionately hitting AUH (most Anadolu volume routed there). AUH orders containing home_care/personal_care SKUs sourced from SUP-07 fail in-full and, less often, on-time through the month, with severity peaking in March and fading by May.",
+      "constants_used": [
+        "ANADOLU_DELAY_ACTUAL_LEAD_MIN_DAYS",
+        "ANADOLU_DELAY_ACTUAL_LEAD_MAX_DAYS",
+        "ANADOLU_DELAY_SHIPMENTS_DUE_MONTHS",
+        "STORY1_AFFECTED_DC",
+        "STORY1_ANADOLU_AUH_SHIPMENT_SHARE",
+        "STORY1_AFFECTED_CATEGORIES",
+        "STORY1_MONTH_SEVERITY",
+        "STORY1_EXTRA_SHORT_PROB_PEAK",
+        "STORY1_EXTRA_LATE_PROB_PEAK"
+      ]
+    },
+    {
+      "story": 2,
+      "name": "home_care slow-moving build",
+      "planted": "home_care sell-through declines ~1.5%/month from 2025-09 while purchasing holds flat, so days_of_cover climbs from ~55 to ~105 and inventory value from ~AED 9M to ~AED 14M by 2026-06. food_beverage inventory tightens over the same period so TOTAL inventory value stays near flat, hiding the problem in the headline number.",
+      "constants_used": [
+        "SLOWMOVE_DEMAND_DECLINE_START",
+        "SLOWMOVE_DEMAND_DECLINE_RATE",
+        "SLOWMOVE_DOC_TARGET_START_DAYS",
+        "SLOWMOVE_DOC_TARGET_END_DAYS",
+        "SLOWMOVE_COUNTER_STOCK_SHRINK_RATE"
+      ]
+    },
+    {
+      "story": 3,
+      "name": "traditional_trade quiet churn",
+      "planted": "traditional_trade order count declines ~2.5%/month per customer from 2025-10 across all 30 traditional_trade customers, with 8 of them fully dormant by 2026-04. modern_trade order count grows ~1.5%/month over the same period, offsetting revenue. Demand-side only: delivery-outcome logic never sees this overlay, so it cannot leak into Story 1's Feb-Mar 2026 decomposition.",
+      "constants_used": [
+        "CHURN_DECAY_START",
+        "TRAD_TRADE_DECAY_RATE",
+        "MODERN_TRADE_GROWTH_RATE",
+        "CHURN_DORMANT_CUSTOMER_COUNT",
+        "CHURN_DORMANT_BY_MONTH",
+        "CHURN_ACTIVE_CUSTOMER_FLOOR_RATE"
+      ]
+    }
+  ],
+  "effects": [
+    {
+      "story": 1,
+      "metric": "otif_pct",
+      "slice": "month=2026-02 (baseline)",
+      "expected": [
+        88.0,
+        93.0
+      ],
+      "actual": 91.02306920762287,
+      "pass": true
+    },
+    {
+      "story": 1,
+      "metric": "otif_pct",
+      "slice": "month=2026-03",
+      "expected": [
+        83.0,
+        85.0
+      ],
+      "actual": 84.22939068100358,
+      "pass": true
+    },
+    {
+      "story": 1,
+      "metric": "otif_pct",
+      "slice": "month=2026-04 (recovery)",
+      "expected": [
+        86.0,
+        90.0
+      ],
+      "actual": 89.23076923076923,
+      "pass": true
+    },
+    {
+      "story": 1,
+      "metric": "otif_pct",
+      "slice": "month=2026-05 (recovered)",
+      "expected": [
+        89.5,
+        93.0
+      ],
+      "actual": 92.64232008592911,
+      "pass": true
+    },
+    {
+      "story": 1,
+      "metric": "otif_pct_line_grain_delta_share_by_supplier",
+      "slice": "SUP-07, 2026-02 -> 2026-03",
+      "expected": [
+        0.5,
+        0.85
+      ],
+      "actual": 0.7207763767820865,
+      "pass": true
+    },
+    {
+      "story": 1,
+      "metric": "otif_pct_dc_drop_share",
+      "slice": "dc=AUH, 2026-02 -> 2026-03",
+      "expected": ">0.5 (AUH explains most of the dc-level drop)",
+      "actual": 1.0835589121464524,
+      "pass": true
+    },
+    {
+      "story": 1,
+      "metric": "otif_pct_category_cut_top2",
+      "slice": "2026-02 -> 2026-03",
+      "expected": [
+        "home_care",
+        "personal_care"
+      ],
+      "actual": [
+        "home_care",
+        "personal_care"
+      ],
+      "pass": true
+    },
+    {
+      "story": 1,
+      "metric": "otif_pct_segment_cut_spread_pp",
+      "slice": "2026-02 -> 2026-03",
+      "expected": "<= 11.0 pp spread across segments",
+      "actual": 9.05973367888052,
+      "pass": true
+    },
+    {
+      "story": 2,
+      "metric": "days_of_cover",
+      "slice": "category=home_care, month=2025-09",
+      "expected": [
+        48,
+        62
+      ],
+      "actual": 55.178077071335956,
+      "pass": true
+    },
+    {
+      "story": 2,
+      "metric": "days_of_cover",
+      "slice": "category=home_care, month=2026-06",
+      "expected": [
+        95,
+        115
+      ],
+      "actual": 105.57164315468356,
+      "pass": true
+    },
+    {
+      "story": 2,
+      "metric": "inventory_value_aed",
+      "slice": "category=home_care, month=2025-09",
+      "expected": [
+        8000000,
+        10000000
+      ],
+      "actual": 9593769.05,
+      "pass": true
+    },
+    {
+      "story": 2,
+      "metric": "inventory_value_aed",
+      "slice": "category=home_care, month=2026-06",
+      "expected": [
+        13000000,
+        15000000
+      ],
+      "actual": 13703256.29,
+      "pass": true
+    },
+    {
+      "story": 2,
+      "metric": "total_inventory_value_drift",
+      "slice": "2025-09 -> 2026-06, all categories",
+      "expected": "<= 0.15",
+      "actual": 0.0502422580094479,
+      "pass": true
+    },
+    {
+      "story": 3,
+      "metric": "order_count_decline_ratio",
+      "slice": "segment=traditional_trade, 2025-10 -> 2026-06",
+      "expected": "< 1.0 (declining)",
+      "actual": 0.6546091015169195,
+      "pass": true
+    },
+    {
+      "story": 3,
+      "metric": "order_count_growth_ratio",
+      "slice": "segment=modern_trade, 2025-10 -> 2026-06",
+      "expected": "> 1.0 (growing)",
+      "actual": 1.1055900621118013,
+      "pass": true
+    },
+    {
+      "story": 3,
+      "metric": "dormant_customer_count",
+      "slice": "segment=traditional_trade, Q2 2026",
+      "expected": 8,
+      "actual": 8,
+      "pass": true
+    },
+    {
+      "story": 3,
+      "metric": "total_revenue_drift",
+      "slice": "2024-07/2024-08/2024-09 vs 2026-04/2026-05/2026-06, all segments",
+      "expected": "<= 0.15",
+      "actual": 0.12797908516074866,
+      "pass": true
+    }
+  ]
+}

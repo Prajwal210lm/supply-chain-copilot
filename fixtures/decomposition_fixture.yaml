@@ -1,0 +1,219 @@
+# decomposition_fixture.yaml — hand-math fixture for the metric layer and the
+# supplier change_decomposition of otif_pct, 2026-02 -> 2026-03.
+#
+# hand_verified is false until the builder has re-derived every worksheet line
+# with a calculator. DOWNSTREAM TESTS MUST REFUSE TO TREAT THIS FIXTURE AS
+# PINNED WHILE hand_verified IS false (skip or fail loudly; never assert
+# against unverified expected values).
+hand_verified: false
+
+# Definitions pinned by this fixture (must match docs/SPEC.md):
+# - Order grain: an order is on_time per its flag; in_full iff EVERY line has
+#   qty_delivered == qty_ordered; OTIF iff on_time AND in_full.
+# - Line grain (used for all supplier cuts of the OTIF family): a line is OTIF
+#   iff its parent order is on_time AND the line's qty_delivered == qty_ordered.
+# - fill_rate_pct is line grain by definition: sum(qty_delivered) / sum(qty_ordered).
+# - revenue = DELIVERED value: sum(qty_delivered * unit_price_aed).
+# - stockout_count (fixture-local operationalization) = number of order lines
+#   with qty_delivered == 0.
+#
+# Construction constraints satisfied (verify before flipping the flag):
+# - Order-grain OTIF: Feb exactly 75.0% (9 of 12), Mar exactly 50.0% (6 of 12).
+# - Mix shift: S1 has 60% of lines in Feb, 40% in Mar. Deliberate deviation
+#   from the suggested "roughly 45%": 9-of-20 lines would force x/9 OTIF rates
+#   (no clean one-decimal values besides 0 and 100), while 8-of-20 keeps every
+#   percentage clean AND strengthens the mix shift the fixture must catch.
+# - 20 lines per month; per-supplier line-grain OTIF rates and the total delta
+#   are all clean one-decimal numbers.
+# - 3 short-shipped lines (>0 delivered) and 1 zero-delivered line, so
+#   fill_rate, in_full, and stockout_count all have non-trivial values.
+
+orders:
+
+  # ------------------------------ 2026-02 (12 orders, 20 lines, all in full)
+  - {order_id: ORD-2602-01, month: "2026-02", supplier: S1, dc: JEB, on_time: true,
+     lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 20},
+             {qty_ordered: 5,  qty_delivered: 5,  unit_price_aed: 40}]}
+  - {order_id: ORD-2602-02, month: "2026-02", supplier: S1, dc: JEB, on_time: true,
+     lines: [{qty_ordered: 20, qty_delivered: 20, unit_price_aed: 10},
+             {qty_ordered: 10, qty_delivered: 10, unit_price_aed: 30}]}
+  - {order_id: ORD-2602-03, month: "2026-02", supplier: S1, dc: AUH, on_time: true,
+     lines: [{qty_ordered: 8,  qty_delivered: 8,  unit_price_aed: 25},
+             {qty_ordered: 12, qty_delivered: 12, unit_price_aed: 25}]}
+  - {order_id: ORD-2602-04, month: "2026-02", supplier: S1, dc: JEB, on_time: true,
+     lines: [{qty_ordered: 15, qty_delivered: 15, unit_price_aed: 20}]}
+  - {order_id: ORD-2602-05, month: "2026-02", supplier: S1, dc: AUH, on_time: true,
+     lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 10},
+             {qty_ordered: 10, qty_delivered: 10, unit_price_aed: 20}]}
+  - {order_id: ORD-2602-06, month: "2026-02", supplier: S1, dc: JEB, on_time: false,
+     lines: [{qty_ordered: 25, qty_delivered: 25, unit_price_aed: 8},
+             {qty_ordered: 10, qty_delivered: 10, unit_price_aed: 10}]}
+  - {order_id: ORD-2602-07, month: "2026-02", supplier: S1, dc: AUH, on_time: false,
+     lines: [{qty_ordered: 20, qty_delivered: 20, unit_price_aed: 10}]}
+  - {order_id: ORD-2602-08, month: "2026-02", supplier: S2, dc: JEB, on_time: true,
+     lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 30},
+             {qty_ordered: 10, qty_delivered: 10, unit_price_aed: 20}]}
+  - {order_id: ORD-2602-09, month: "2026-02", supplier: S2, dc: AUH, on_time: true,
+     lines: [{qty_ordered: 25, qty_delivered: 25, unit_price_aed: 20}]}
+  - {order_id: ORD-2602-10, month: "2026-02", supplier: S2, dc: JEB, on_time: true,
+     lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 25}]}
+  - {order_id: ORD-2602-11, month: "2026-02", supplier: S2, dc: AUH, on_time: true,
+     lines: [{qty_ordered: 15, qty_delivered: 15, unit_price_aed: 10}]}
+  - {order_id: ORD-2602-12, month: "2026-02", supplier: S2, dc: JEB, on_time: false,
+     lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 20},
+             {qty_ordered: 20, qty_delivered: 20, unit_price_aed: 10},
+             {qty_ordered: 10, qty_delivered: 10, unit_price_aed: 20}]}
+
+  # ------------------------------ 2026-03 (12 orders, 20 lines)
+  - {order_id: ORD-2603-01, month: "2026-03", supplier: S1, dc: JEB, on_time: true,
+     lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 20},
+             {qty_ordered: 10, qty_delivered: 10, unit_price_aed: 10}]}
+  - {order_id: ORD-2603-02, month: "2026-03", supplier: S1, dc: AUH, on_time: true,
+     lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 30},
+             {qty_ordered: 20, qty_delivered: 0,  unit_price_aed: 10}]}   # zero-delivered line (the stockout)
+  - {order_id: ORD-2603-03, month: "2026-03", supplier: S1, dc: JEB, on_time: true,
+     lines: [{qty_ordered: 25, qty_delivered: 25, unit_price_aed: 20}]}
+  - {order_id: ORD-2603-04, month: "2026-03", supplier: S1, dc: JEB, on_time: false,
+     lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 10},
+             {qty_ordered: 10, qty_delivered: 10, unit_price_aed: 20}]}
+  - {order_id: ORD-2603-05, month: "2026-03", supplier: S1, dc: AUH, on_time: true,
+     lines: [{qty_ordered: 20, qty_delivered: 10, unit_price_aed: 20}]}   # short-shipped
+  - {order_id: ORD-2603-06, month: "2026-03", supplier: S2, dc: JEB, on_time: true,
+     lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 20},
+             {qty_ordered: 15, qty_delivered: 15, unit_price_aed: 20}]}
+  - {order_id: ORD-2603-07, month: "2026-03", supplier: S2, dc: AUH, on_time: true,
+     lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 10},
+             {qty_ordered: 20, qty_delivered: 20, unit_price_aed: 10}]}
+  - {order_id: ORD-2603-08, month: "2026-03", supplier: S2, dc: JEB, on_time: true,
+     lines: [{qty_ordered: 20, qty_delivered: 20, unit_price_aed: 20}]}
+  - {order_id: ORD-2603-09, month: "2026-03", supplier: S2, dc: AUH, on_time: true,
+     lines: [{qty_ordered: 20, qty_delivered: 20, unit_price_aed: 15}]}
+  - {order_id: ORD-2603-10, month: "2026-03", supplier: S2, dc: JEB, on_time: false,
+     lines: [{qty_ordered: 10, qty_delivered: 10, unit_price_aed: 20},
+             {qty_ordered: 10, qty_delivered: 10, unit_price_aed: 10}]}
+  - {order_id: ORD-2603-11, month: "2026-03", supplier: S2, dc: AUH, on_time: false,
+     lines: [{qty_ordered: 20, qty_delivered: 20, unit_price_aed: 10},
+             {qty_ordered: 20, qty_delivered: 20, unit_price_aed: 20}]}
+  - {order_id: ORD-2603-12, month: "2026-03", supplier: S2, dc: JEB, on_time: true,
+     lines: [{qty_ordered: 20, qty_delivered: 10, unit_price_aed: 10},   # short-shipped
+             {qty_ordered: 10, qty_delivered: 5,  unit_price_aed: 20}]}  # short-shipped
+
+worksheet:
+
+  metric_layer_order_grain:
+    "2026-02":
+      order_count: 12
+      on_time_orders: "9 of 12 (late: ORD-2602-06, ORD-2602-07, ORD-2602-12)"
+      on_time_pct: "9 / 12 = 75.0"
+      in_full_orders: "12 of 12 (every Feb line delivered in full)"
+      in_full_pct: "12 / 12 = 100.0"
+      otif_orders: "9 of 12 (on_time AND in_full; the 3 late orders fail)"
+      otif_pct: "9 / 12 = 75.0"
+      qty_ordered_total: "15 + 30 + 20 + 15 + 20 + 35 + 20 + 20 + 25 + 10 + 15 + 40 = 265"
+      qty_delivered_total: "265 (all in full)"
+      fill_rate_pct: "265 / 265 = 100.0"
+      revenue_by_order_aed: "400 + 500 + 500 + 300 + 300 + 300 + 200 + 500 + 500 + 250 + 150 + 600 = 4500"
+      revenue_aed: 4500
+      avg_order_value_aed: "4500 / 12 = 375.0"
+      stockout_count: "0 (no zero-delivered lines)"
+    "2026-03":
+      order_count: 12
+      on_time_orders: "9 of 12 (late: ORD-2603-04, ORD-2603-10, ORD-2603-11)"
+      on_time_pct: "9 / 12 = 75.0"
+      in_full_orders: "9 of 12 (not in full: ORD-2603-02, ORD-2603-05, ORD-2603-12)"
+      in_full_pct: "9 / 12 = 75.0"
+      otif_orders: "6 of 12 (late set and not-in-full set are disjoint: 12 - 3 - 3 = 6)"
+      otif_pct: "6 / 12 = 50.0"
+      qty_ordered_total: "20 + 30 + 25 + 20 + 20 + 25 + 30 + 20 + 20 + 20 + 40 + 30 = 300"
+      qty_delivered_total: "20 + 10 + 25 + 20 + 10 + 25 + 30 + 20 + 20 + 20 + 40 + 15 = 255"
+      fill_rate_pct: "255 / 300 = 85.0"
+      revenue_by_order_aed: "300 + 300 + 500 + 300 + 200 + 500 + 300 + 400 + 300 + 300 + 600 + 200 = 4200"
+      revenue_aed: 4200
+      avg_order_value_aed: "4200 / 12 = 350.0"
+      stockout_count: "1 (ORD-2603-02 line 2, qty_delivered 0)"
+
+  decomposition_layer_line_grain:
+    metric: otif_pct
+    dimension: supplier
+    grain_note: >
+      Supplier cuts of the OTIF family run at ORDER-LINE grain (docs/SPEC.md).
+      Note the order-grain delta is -25.0 pts (75.0 -> 50.0) while the
+      line-grain delta is -20.0 pts (70.0 -> 50.0); the supplier decomposition
+      must reconcile against the LINE-grain delta, and a formula that silently
+      uses order-grain numbers will not sum.
+    per_supplier_per_month:
+      "2026-02":
+        S1:
+          line_count: "2+2+2+1+2+2+1 = 12 (orders 01-07)"
+          share: "12 / 20 = 0.600"
+          otif_lines: "9 (all 9 lines of on-time orders 01-05; the 3 lines of late orders 06-07 fail)"
+          otif_rate: "9 / 12 = 75.0"
+        S2:
+          line_count: "2+1+1+1+3 = 8 (orders 08-12)"
+          share: "8 / 20 = 0.400"
+          otif_lines: "5 (all 5 lines of on-time orders 08-11; the 3 lines of late order 12 fail)"
+          otif_rate: "5 / 8 = 62.5"
+        total: "(9 + 5) / 20 = 14 / 20 = 70.0"
+        weighted_check: "0.600 * 75.0 + 0.400 * 62.5 = 45.0 + 25.0 = 70.0"
+      "2026-03":
+        S1:
+          line_count: "2+2+1+2+1 = 8 (orders 01-05)"
+          share: "8 / 20 = 0.400"
+          otif_lines: "4 (01: 2 full lines; 02: line 1 only, line 2 zero-delivered; 03: 1; 04 late: 0; 05 short: 0)"
+          otif_rate: "4 / 8 = 50.0"
+        S2:
+          line_count: "2+2+1+1+2+2+2 = 12 (orders 06-12)"
+          share: "12 / 20 = 0.600"
+          otif_lines: "6 (06: 2, 07: 2, 08: 1, 09: 1; 10-11 late: 0; 12 both lines short: 0)"
+          otif_rate: "6 / 12 = 50.0"
+        total: "(4 + 6) / 20 = 10 / 20 = 50.0"
+        weighted_check: "0.400 * 50.0 + 0.600 * 50.0 = 20.0 + 30.0 = 50.0"
+    contributions:
+      formula: "contribution_i = (share_mar_i * rate_mar_i) - (share_feb_i * rate_feb_i)"
+      S1: "(0.400 * 50.0) - (0.600 * 75.0) = 20.0 - 45.0 = -25.0"
+      S2: "(0.600 * 50.0) - (0.400 * 62.5) = 30.0 - 25.0 = +5.0"
+      sum_of_contributions: "-25.0 + 5.0 = -20.0"
+      line_grain_delta: "50.0 - 70.0 = -20.0"
+      reconciliation: "sum_of_contributions (-20.0) == line_grain_delta (-20.0), exact"
+
+expected:
+  metrics:
+    "2026-02":
+      otif_pct: 75.0
+      on_time_pct: 75.0
+      in_full_pct: 100.0
+      fill_rate_pct: 100.0
+      revenue_aed: 4500
+      order_count: 12
+      avg_order_value_aed: 375.0
+      stockout_count: 0
+    "2026-03":
+      otif_pct: 50.0
+      on_time_pct: 75.0
+      in_full_pct: 75.0
+      fill_rate_pct: 85.0
+      revenue_aed: 4200
+      order_count: 12
+      avg_order_value_aed: 350.0
+      stockout_count: 1
+  decomposition:
+    metric: otif_pct
+    dimension: supplier
+    grain: line
+    period_a: {grain: month, start: "2026-02", end: "2026-02"}
+    period_b: {grain: month, start: "2026-03", end: "2026-03"}
+    line_grain_otif:
+      "2026-02":
+        S1: {line_count: 12, share: 0.600, otif_rate: 75.0}
+        S2: {line_count: 8,  share: 0.400, otif_rate: 62.5}
+        total: 70.0
+      "2026-03":
+        S1: {line_count: 8,  share: 0.400, otif_rate: 50.0}
+        S2: {line_count: 12, share: 0.600, otif_rate: 50.0}
+        total: 50.0
+    contributions:
+      S1: -25.0
+      S2: 5.0
+    sum_of_contributions: -20.0
+    line_grain_delta: -20.0
+    order_grain_delta: -25.0
