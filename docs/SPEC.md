@@ -42,6 +42,8 @@ avg_order_value, inventory_value, days_of_cover, stockout_count,
 avg_supplier_lead_time
 ```
 
+`avg_order_value`: revenue divided by order count, based on delivered value, in AED.
+
 ### dimension
 
 ```

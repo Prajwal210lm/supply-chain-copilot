@@ -1,0 +1,864 @@
+{
+  "placeholder": false,
+  "turns": [
+    {
+      "question": "How did OTIF perform over the last year?",
+      "response": {
+        "type": "answer",
+        "spec": {
+          "spec_type": "metric_query",
+          "metric": "otif_pct",
+          "period": {
+            "grain": "month",
+            "start": "2025-01",
+            "end": "2025-12"
+          },
+          "time_grain": "month"
+        },
+        "echo_bar": "OTIF %, Jan 2025 to Dec 2025, monthly",
+        "result": {
+          "metric": "otif_pct",
+          "points": [
+            {
+              "bucket": "2025-01",
+              "value": {
+                "raw": 91.88432835820896,
+                "formatted": "91.9%"
+              }
+            },
+            {
+              "bucket": "2025-02",
+              "value": {
+                "raw": 91.78789300797747,
+                "formatted": "91.8%"
+              }
+            },
+            {
+              "bucket": "2025-03",
+              "value": {
+                "raw": 92.17352415026834,
+                "formatted": "92.2%"
+              }
+            },
+            {
+              "bucket": "2025-04",
+              "value": {
+                "raw": 93.08145240431796,
+                "formatted": "93.1%"
+              }
+            },
+            {
+              "bucket": "2025-05",
+              "value": {
+                "raw": 94.68275245755139,
+                "formatted": "94.7%"
+              }
+            },
+            {
+              "bucket": "2025-06",
+              "value": {
+                "raw": 93.89957766306898,
+                "formatted": "93.9%"
+              }
+            },
+            {
+              "bucket": "2025-07",
+              "value": {
+                "raw": 93.57142857142857,
+                "formatted": "93.6%"
+              }
+            },
+            {
+              "bucket": "2025-08",
+              "value": {
+                "raw": 93.17865429234338,
+                "formatted": "93.2%"
+              }
+            },
+            {
+              "bucket": "2025-09",
+              "value": {
+                "raw": 93.03482587064677,
+                "formatted": "93.0%"
+              }
+            },
+            {
+              "bucket": "2025-10",
+              "value": {
+                "raw": 92.63657957244655,
+                "formatted": "92.6%"
+              }
+            },
+            {
+              "bucket": "2025-11",
+              "value": {
+                "raw": 90.77407740774078,
+                "formatted": "90.8%"
+              }
+            },
+            {
+              "bucket": "2025-12",
+              "value": {
+                "raw": 91.92200557103064,
+                "formatted": "91.9%"
+              }
+            }
+          ],
+          "min": {
+            "raw": 90.77407740774078,
+            "formatted": "90.8%"
+          },
+          "max": {
+            "raw": 94.68275245755139,
+            "formatted": "94.7%"
+          },
+          "first": {
+            "raw": 91.88432835820896,
+            "formatted": "91.9%"
+          },
+          "latest": {
+            "raw": 91.92200557103064,
+            "formatted": "91.9%"
+          }
+        },
+        "narration": "OTIF % opened the year at 91.9% in January and climbed to a peak of 94.7% in May before gradually declining through the latter months, reaching a trough of 90.8% in November. December recovered slightly to 91.9%, nearly matching the January level, leaving the full-year range within a relatively narrow band of 90.8%\u201394.7%.",
+        "narration_withheld": null,
+        "chart": {
+          "type": "line",
+          "title": "OTIF %",
+          "data": [
+            {
+              "label": "2025-01",
+              "value": 91.88432835820896,
+              "formatted": "91.9%",
+              "color": null
+            },
+            {
+              "label": "2025-02",
+              "value": 91.78789300797747,
+              "formatted": "91.8%",
+              "color": null
+            },
+            {
+              "label": "2025-03",
+              "value": 92.17352415026834,
+              "formatted": "92.2%",
+              "color": null
+            },
+            {
+              "label": "2025-04",
+              "value": 93.08145240431796,
+              "formatted": "93.1%",
+              "color": null
+            },
+            {
+              "label": "2025-05",
+              "value": 94.68275245755139,
+              "formatted": "94.7%",
+              "color": null
+            },
+            {
+              "label": "2025-06",
+              "value": 93.89957766306898,
+              "formatted": "93.9%",
+              "color": null
+            },
+            {
+              "label": "2025-07",
+              "value": 93.57142857142857,
+              "formatted": "93.6%",
+              "color": null
+            },
+            {
+              "label": "2025-08",
+              "value": 93.17865429234338,
+              "formatted": "93.2%",
+              "color": null
+            },
+            {
+              "label": "2025-09",
+              "value": 93.03482587064677,
+              "formatted": "93.0%",
+              "color": null
+            },
+            {
+              "label": "2025-10",
+              "value": 92.63657957244655,
+              "formatted": "92.6%",
+              "color": null
+            },
+            {
+              "label": "2025-11",
+              "value": 90.77407740774078,
+              "formatted": "90.8%",
+              "color": null
+            },
+            {
+              "label": "2025-12",
+              "value": 91.92200557103064,
+              "formatted": "91.9%",
+              "color": null
+            }
+          ],
+          "axes": {
+            "x": "period",
+            "y": "OTIF %"
+          }
+        },
+        "sql": "SELECT spine.bucket AS bucket, ((agg.num_val) * 1.0 / NULLIF(agg.den_val, 0)) * 100.0 AS value\nFROM (VALUES (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?), (?)) AS spine(bucket)\nLEFT JOIN (\nSELECT CAST(date_trunc(?, event_date) AS DATE) AS bucket, COUNT(*) FILTER (WHERE on_time AND in_full) AS num_val, COUNT(*) AS den_val\nFROM (\n\n    SELECT\n        o.order_id,\n        o.order_date AS event_date,\n        o.dc AS dc,\n        c.emirate AS emirate,\n        c.segment AS customer_segment,\n        (o.actual_delivery_date <= o.requested_delivery_date) AS on_time,\n        NOT EXISTS (\n            SELECT 1 FROM order_lines ol2\n            WHERE ol2.order_id = o.order_id AND ol2.qty_delivered < ol2.qty_ordered\n        ) AS in_full\n    FROM orders o\n    JOIN customers c ON c.customer_id = o.customer_id\n\n) AS base\nWHERE event_date BETWEEN ? AND ?\nGROUP BY 1\n) AS agg ON agg.bucket = spine.bucket\nORDER BY spine.bucket",
+        "options": null,
+        "suggestions": null,
+        "message": null,
+        "usage": {
+          "input_tokens": 12916,
+          "output_tokens": 456,
+          "cost_usd": 0.045588000000000004
+        }
+      }
+    },
+    {
+      "question": "Why did OTIF drop in March 2026?",
+      "response": {
+        "type": "answer",
+        "spec": {
+          "spec_type": "change_decomposition",
+          "metric": "otif_pct",
+          "dimension": "supplier",
+          "period_a": {
+            "grain": "month",
+            "start": "2026-02",
+            "end": "2026-02"
+          },
+          "period_b": {
+            "grain": "month",
+            "start": "2026-03",
+            "end": "2026-03"
+          }
+        },
+        "echo_bar": "OTIF %, Mar 2026 vs Feb 2026, by supplier, line grain",
+        "result": {
+          "metric": "otif_pct",
+          "dimension": "supplier",
+          "members": [
+            {
+              "member": "SUP-07",
+              "share_a": {
+                "raw": 0.11838921534739025,
+                "formatted": "11.8%"
+              },
+              "share_b": {
+                "raw": 0.11042402826855123,
+                "formatted": "11.0%"
+              },
+              "rate_a": {
+                "raw": 90.65693430656935,
+                "formatted": "90.7%"
+              },
+              "rate_b": {
+                "raw": 63.519999999999996,
+                "formatted": "63.5%"
+              },
+              "contribution": {
+                "raw": -3.718669042736276,
+                "formatted": "-3.7pts"
+              }
+            },
+            {
+              "member": "SUP-05",
+              "share_a": {
+                "raw": 0.08641548565502938,
+                "formatted": "8.6%"
+              },
+              "share_b": {
+                "raw": 0.09045936395759717,
+                "formatted": "9.0%"
+              },
+              "rate_a": {
+                "raw": 95.0,
+                "formatted": "95.0%"
+              },
+              "rate_b": {
+                "raw": 94.140625,
+                "formatted": "94.1%"
+              },
+              "contribution": {
+                "raw": 0.30642992284288084,
+                "formatted": "+0.3pts"
+              }
+            },
+            {
+              "member": "SUP-04",
+              "share_a": {
+                "raw": 0.11043899066712755,
+                "formatted": "11.0%"
+              },
+              "share_b": {
+                "raw": 0.12049469964664311,
+                "formatted": "12.0%"
+              },
+              "rate_a": {
+                "raw": 94.05320813771519,
+                "formatted": "94.1%"
+              },
+              "rate_b": {
+                "raw": 91.20234604105572,
+                "formatted": "91.2%"
+              },
+              "contribution": {
+                "raw": 0.602257917551686,
+                "formatted": "+0.6pts"
+              }
+            },
+            {
+              "member": "SUP-02",
+              "share_a": {
+                "raw": 0.05634289664707916,
+                "formatted": "5.6%"
+              },
+              "share_b": {
+                "raw": 0.05565371024734982,
+                "formatted": "5.6%"
+              },
+              "rate_a": {
+                "raw": 96.31901840490798,
+                "formatted": "96.3%"
+              },
+              "rate_b": {
+                "raw": 90.47619047619048,
+                "formatted": "90.5%"
+              },
+              "contribution": {
+                "raw": -0.3915568100899085,
+                "formatted": "-0.4pts"
+              }
+            },
+            {
+              "member": "SUP-12",
+              "share_a": {
+                "raw": 0.07466297960594538,
+                "formatted": "7.5%"
+              },
+              "share_b": {
+                "raw": 0.06219081272084806,
+                "formatted": "6.2%"
+              },
+              "rate_a": {
+                "raw": 94.67592592592592,
+                "formatted": "94.7%"
+              },
+              "rate_b": {
+                "raw": 91.19318181818183,
+                "formatted": "91.2%"
+              },
+              "contribution": {
+                "raw": -1.3974086347086105,
+                "formatted": "-1.4pts"
+              }
+            },
+            {
+              "member": "SUP-08",
+              "share_a": {
+                "raw": 0.07742827514690633,
+                "formatted": "7.7%"
+              },
+              "share_b": {
+                "raw": 0.08074204946996466,
+                "formatted": "8.1%"
+              },
+              "rate_a": {
+                "raw": 93.75,
+                "formatted": "93.8%"
+              },
+              "rate_b": {
+                "raw": 90.80962800875274,
+                "formatted": "90.8%"
+              },
+              "contribution": {
+                "raw": 0.07325468200933383,
+                "formatted": "+0.1pts"
+              }
+            },
+            {
+              "member": "SUP-06",
+              "share_a": {
+                "raw": 0.13480815762184584,
+                "formatted": "13.5%"
+              },
+              "share_b": {
+                "raw": 0.1295053003533569,
+                "formatted": "13.0%"
+              },
+              "rate_a": {
+                "raw": 93.46153846153847,
+                "formatted": "93.5%"
+              },
+              "rate_b": {
+                "raw": 91.95088676671213,
+                "formatted": "92.0%"
+              },
+              "contribution": {
+                "raw": -0.6912506000227214,
+                "formatted": "-0.7pts"
+              }
+            },
+            {
+              "member": "SUP-09",
+              "share_a": {
+                "raw": 0.08710680954026961,
+                "formatted": "8.7%"
+              },
+              "share_b": {
+                "raw": 0.08745583038869258,
+                "formatted": "8.7%"
+              },
+              "rate_a": {
+                "raw": 93.45238095238095,
+                "formatted": "93.5%"
+              },
+              "rate_b": {
+                "raw": 89.4949494949495,
+                "formatted": "89.5%"
+              },
+              "contribution": {
+                "raw": -0.31348362502885596,
+                "formatted": "-0.3pts"
+              }
+            },
+            {
+              "member": "SUP-10",
+              "share_a": {
+                "raw": 0.041997926028344276,
+                "formatted": "4.2%"
+              },
+              "share_b": {
+                "raw": 0.04646643109540636,
+                "formatted": "4.6%"
+              },
+              "rate_a": {
+                "raw": 93.4156378600823,
+                "formatted": "93.4%"
+              },
+              "rate_b": {
+                "raw": 94.29657794676805,
+                "formatted": "94.3%"
+              },
+              "contribution": {
+                "raw": 0.4583623929577789,
+                "formatted": "+0.5pts"
+              }
+            },
+            {
+              "member": "SUP-11",
+              "share_a": {
+                "raw": 0.06152782578638092,
+                "formatted": "6.2%"
+              },
+              "share_b": {
+                "raw": 0.0696113074204947,
+                "formatted": "7.0%"
+              },
+              "rate_a": {
+                "raw": 94.66292134831461,
+                "formatted": "94.7%"
+              },
+              "rate_b": {
+                "raw": 91.87817258883248,
+                "formatted": "91.9%"
+              },
+              "contribution": {
+                "raw": 0.5713559841655069,
+                "formatted": "+0.6pts"
+              }
+            },
+            {
+              "member": "SUP-01",
+              "share_a": {
+                "raw": 0.10110611821638438,
+                "formatted": "10.1%"
+              },
+              "share_b": {
+                "raw": 0.10017667844522968,
+                "formatted": "10.0%"
+              },
+              "rate_a": {
+                "raw": 93.67521367521367,
+                "formatted": "93.7%"
+              },
+              "rate_b": {
+                "raw": 91.005291005291,
+                "formatted": "91.0%"
+              },
+              "contribution": {
+                "raw": -0.3545294539396302,
+                "formatted": "-0.4pts"
+              }
+            },
+            {
+              "member": "SUP-03",
+              "share_a": {
+                "raw": 0.04977531973729692,
+                "formatted": "5.0%"
+              },
+              "share_b": {
+                "raw": 0.046819787985865724,
+                "formatted": "4.7%"
+              },
+              "rate_a": {
+                "raw": 92.36111111111111,
+                "formatted": "92.4%"
+              },
+              "rate_b": {
+                "raw": 91.69811320754717,
+                "formatted": "91.7%"
+              },
+              "contribution": {
+                "raw": -0.30401761776629144,
+                "formatted": "-0.3pts"
+              }
+            }
+          ],
+          "delta": {
+            "raw": -5.1592548847651045,
+            "formatted": "-5.2pts"
+          },
+          "residual_ok": true,
+          "withheld": false,
+          "withheld_reason": null,
+          "period_a_label": "Feb 2026",
+          "period_b_label": "Mar 2026"
+        },
+        "narration": "Overall OTIF declined by -5.2pts from Feb 2026 to Mar 2026. The largest driver was SUP-07, whose OTIF rate fell sharply from 90.7% to 63.5%, contributing -3.7pts to the overall change. SUP-12 further reinforced the decline with a -1.4pts contribution, while most other suppliers also dragged modestly; SUP-04, SUP-11, and SUP-05 provided partial offsets, each contributing around +0.6pts to +0.3pts.",
+        "narration_withheld": null,
+        "chart": {
+          "type": "waterfall",
+          "title": "OTIF % change by supplier",
+          "data": [
+            {
+              "label": "SUP-07",
+              "value": -3.718669042736276,
+              "formatted": "-3.7pts",
+              "color": "red"
+            },
+            {
+              "label": "SUP-12",
+              "value": -1.3974086347086105,
+              "formatted": "-1.4pts",
+              "color": "red"
+            },
+            {
+              "label": "SUP-06",
+              "value": -0.6912506000227214,
+              "formatted": "-0.7pts",
+              "color": "red"
+            },
+            {
+              "label": "SUP-04",
+              "value": 0.602257917551686,
+              "formatted": "+0.6pts",
+              "color": "green"
+            },
+            {
+              "label": "SUP-11",
+              "value": 0.5713559841655069,
+              "formatted": "+0.6pts",
+              "color": "green"
+            },
+            {
+              "label": "SUP-10",
+              "value": 0.4583623929577789,
+              "formatted": "+0.5pts",
+              "color": "green"
+            },
+            {
+              "label": "SUP-02",
+              "value": -0.3915568100899085,
+              "formatted": "-0.4pts",
+              "color": "red"
+            },
+            {
+              "label": "SUP-01",
+              "value": -0.3545294539396302,
+              "formatted": "-0.4pts",
+              "color": "red"
+            },
+            {
+              "label": "SUP-09",
+              "value": -0.31348362502885596,
+              "formatted": "-0.3pts",
+              "color": "red"
+            },
+            {
+              "label": "SUP-05",
+              "value": 0.30642992284288084,
+              "formatted": "+0.3pts",
+              "color": "green"
+            },
+            {
+              "label": "SUP-03",
+              "value": -0.30401761776629144,
+              "formatted": "-0.3pts",
+              "color": "red"
+            },
+            {
+              "label": "SUP-08",
+              "value": 0.07325468200933383,
+              "formatted": "+0.1pts",
+              "color": "green"
+            },
+            {
+              "label": "Total",
+              "value": -5.1592548847651045,
+              "formatted": "-5.2pts",
+              "color": "total"
+            }
+          ],
+          "axes": {
+            "x": "supplier",
+            "y": "OTIF %"
+          }
+        },
+        "sql": "SELECT member,\nCOUNT(*) FILTER (WHERE on_time AND line_in_full AND in_a) AS num_a, COUNT(*) FILTER (WHERE in_a) AS den_a,\nCOUNT(*) FILTER (WHERE on_time AND line_in_full AND in_b) AS num_b, COUNT(*) FILTER (WHERE in_b) AS den_b\nFROM (\nSELECT supplier AS member,\n(event_date BETWEEN ? AND ?) AS in_a,\n(event_date BETWEEN ? AND ?) AS in_b,\n*\nFROM (\n\n    SELECT\n        ol.order_id,\n        o.order_date AS event_date,\n        o.dc AS dc,\n        c.emirate AS emirate,\n        c.segment AS customer_segment,\n        s.category AS category,\n        s.primary_supplier_id AS supplier,\n        (o.actual_delivery_date <= o.requested_delivery_date) AS on_time,\n        (ol.qty_delivered = ol.qty_ordered) AS line_in_full\n    FROM order_lines ol\n    JOIN orders o ON o.order_id = ol.order_id\n    JOIN customers c ON c.customer_id = o.customer_id\n    JOIN skus s ON s.sku_id = ol.sku_id\n\n) AS base\nWHERE ((event_date BETWEEN ? AND ?) OR (event_date BETWEEN ? AND ?))\n) AS tagged\nGROUP BY member",
+        "options": null,
+        "suggestions": null,
+        "message": null,
+        "usage": {
+          "input_tokens": 8146,
+          "output_tokens": 338,
+          "cost_usd": 0.029508
+        }
+      }
+    },
+    {
+      "question": "What happened to Anadolu's lead times?",
+      "response": {
+        "type": "answer",
+        "spec": {
+          "spec_type": "metric_query",
+          "metric": "avg_supplier_lead_time",
+          "period": {
+            "grain": "month",
+            "start": "2026-06",
+            "end": "2026-06"
+          },
+          "filters": [
+            {
+              "dimension": "supplier",
+              "values": [
+                "Anadolu"
+              ]
+            }
+          ]
+        },
+        "echo_bar": "Average Supplier Lead Time, Jun 2026, supplier=Anadolu",
+        "result": {
+          "metric": "avg_supplier_lead_time",
+          "value": {
+            "raw": 41.44444444444444,
+            "formatted": "41.4 days"
+          },
+          "period_label": "Jun 2026"
+        },
+        "narration": "The average supplier lead time from Anadolu in Jun 2026 stands at 41.4 days. This is notably elevated and may warrant attention if it falls outside the acceptable threshold for this supplier category.",
+        "narration_withheld": null,
+        "chart": {
+          "type": "stat_card",
+          "title": "Average Supplier Lead Time",
+          "data": [
+            {
+              "label": "Average Supplier Lead Time",
+              "value": 41.44444444444444,
+              "formatted": "41.4 days",
+              "color": null
+            }
+          ],
+          "axes": {
+            "x": null,
+            "y": null
+          }
+        },
+        "sql": "SELECT ((SUM(lead_days)) * 1.0 / NULLIF(COUNT(*), 0)) AS value\nFROM (\n\n    SELECT\n        sh.shipment_id,\n        sh.promised_arrival_date AS event_date,\n        sh.dc AS dc,\n        sh.supplier_id AS supplier,\n        DATE_DIFF('day', sh.po_date, sh.actual_arrival_date) AS lead_days\n    FROM shipments sh\n\n) AS base\nWHERE event_date BETWEEN ? AND ? AND supplier IN (?)",
+        "options": null,
+        "suggestions": null,
+        "message": null,
+        "usage": {
+          "input_tokens": 6014,
+          "output_tokens": 181,
+          "cost_usd": 0.020757
+        }
+      }
+    },
+    {
+      "question": "Was Abu Dhabi hit harder than Jebel Ali?",
+      "response": {
+        "type": "answer",
+        "spec": {
+          "spec_type": "change_decomposition",
+          "metric": "otif_pct",
+          "dimension": "dc",
+          "period_a": {
+            "grain": "month",
+            "start": "2026-02",
+            "end": "2026-02"
+          },
+          "period_b": {
+            "grain": "month",
+            "start": "2026-03",
+            "end": "2026-03"
+          }
+        },
+        "echo_bar": "OTIF %, Mar 2026 vs Feb 2026, by dc",
+        "result": {
+          "metric": "otif_pct",
+          "dimension": "dc",
+          "members": [
+            {
+              "member": "JEB",
+              "share_a": {
+                "raw": 0.6800401203610833,
+                "formatted": "68.0%"
+              },
+              "share_b": {
+                "raw": 0.6600102406554019,
+                "formatted": "66.0%"
+              },
+              "rate_a": {
+                "raw": 91.44542772861357,
+                "formatted": "91.4%"
+              },
+              "rate_b": {
+                "raw": 93.25058184639255,
+                "formatted": "93.3%"
+              },
+              "contribution": {
+                "raw": -0.640220713343318,
+                "formatted": "-0.6pts"
+              }
+            },
+            {
+              "member": "AUH",
+              "share_a": {
+                "raw": 0.31995987963891676,
+                "formatted": "32.0%"
+              },
+              "share_b": {
+                "raw": 0.3399897593445981,
+                "formatted": "34.0%"
+              },
+              "rate_a": {
+                "raw": 90.12539184952978,
+                "formatted": "90.1%"
+              },
+              "rate_b": {
+                "raw": 66.71686746987952,
+                "formatted": "66.7%"
+              },
+              "contribution": {
+                "raw": -6.153457813275978,
+                "formatted": "-6.2pts"
+              }
+            }
+          ],
+          "delta": {
+            "raw": -6.7936785266192885,
+            "formatted": "-6.8pts"
+          },
+          "residual_ok": true,
+          "withheld": false,
+          "withheld_reason": null,
+          "period_a_label": "Feb 2026",
+          "period_b_label": "Mar 2026"
+        },
+        "narration": "Overall OTIF % fell by -6.8pts from Feb 2026 to Mar 2026. AUH is the dominant contributor to this decline, accounting for -6.2pts of the total shift, as its OTIF rate dropped sharply from 90.1% to 66.7% despite its volume share growing slightly to 34.0%. JEB reinforced the decline with a further -0.6pts, though its OTIF rate actually improved from 91.4% to 93.3%, meaning its negative contribution reflects the mix shift rather than a performance deterioration.",
+        "narration_withheld": null,
+        "chart": {
+          "type": "waterfall",
+          "title": "OTIF % change by dc",
+          "data": [
+            {
+              "label": "AUH",
+              "value": -6.153457813275978,
+              "formatted": "-6.2pts",
+              "color": "red"
+            },
+            {
+              "label": "JEB",
+              "value": -0.640220713343318,
+              "formatted": "-0.6pts",
+              "color": "red"
+            },
+            {
+              "label": "Total",
+              "value": -6.7936785266192885,
+              "formatted": "-6.8pts",
+              "color": "total"
+            }
+          ],
+          "axes": {
+            "x": "dc",
+            "y": "OTIF %"
+          }
+        },
+        "sql": "SELECT member,\nCOUNT(*) FILTER (WHERE on_time AND in_full AND in_a) AS num_a, COUNT(*) FILTER (WHERE in_a) AS den_a,\nCOUNT(*) FILTER (WHERE on_time AND in_full AND in_b) AS num_b, COUNT(*) FILTER (WHERE in_b) AS den_b\nFROM (\nSELECT dc AS member,\n(event_date BETWEEN ? AND ?) AS in_a,\n(event_date BETWEEN ? AND ?) AS in_b,\n*\nFROM (\n\n    SELECT\n        o.order_id,\n        o.order_date AS event_date,\n        o.dc AS dc,\n        c.emirate AS emirate,\n        c.segment AS customer_segment,\n        (o.actual_delivery_date <= o.requested_delivery_date) AS on_time,\n        NOT EXISTS (\n            SELECT 1 FROM order_lines ol2\n            WHERE ol2.order_id = o.order_id AND ol2.qty_delivered < ol2.qty_ordered\n        ) AS in_full\n    FROM orders o\n    JOIN customers c ON c.customer_id = o.customer_id\n\n) AS base\nWHERE ((event_date BETWEEN ? AND ?) OR (event_date BETWEEN ? AND ?))\n) AS tagged\nGROUP BY member",
+        "options": null,
+        "suggestions": null,
+        "message": null,
+        "usage": {
+          "input_tokens": 6440,
+          "output_tokens": 338,
+          "cost_usd": 0.024390000000000002
+        }
+      }
+    },
+    {
+      "question": "How are we doing now?",
+      "response": {
+        "type": "answer",
+        "spec": {
+          "spec_type": "metric_query",
+          "metric": "otif_pct",
+          "period": {
+            "grain": "month",
+            "start": "2026-06",
+            "end": "2026-06"
+          }
+        },
+        "echo_bar": "OTIF %, Jun 2026",
+        "result": {
+          "metric": "otif_pct",
+          "value": {
+            "raw": 93.89920424403184,
+            "formatted": "93.9%"
+          },
+          "period_label": "Jun 2026"
+        },
+        "narration": "OTIF performance for Jun 2026 came in at 93.9%, reflecting strong on-time, in-full delivery execution across the distribution network. This result sits near the high end of what is typically considered excellent performance for supply chain operations.",
+        "narration_withheld": null,
+        "chart": {
+          "type": "stat_card",
+          "title": "OTIF %",
+          "data": [
+            {
+              "label": "OTIF %",
+              "value": 93.89920424403184,
+              "formatted": "93.9%",
+              "color": null
+            }
+          ],
+          "axes": {
+            "x": null,
+            "y": null
+          }
+        },
+        "sql": "SELECT ((COUNT(*) FILTER (WHERE on_time AND in_full)) * 1.0 / NULLIF(COUNT(*), 0)) * 100.0 AS value\nFROM (\n\n    SELECT\n        o.order_id,\n        o.order_date AS event_date,\n        o.dc AS dc,\n        c.emirate AS emirate,\n        c.segment AS customer_segment,\n        (o.actual_delivery_date <= o.requested_delivery_date) AS on_time,\n        NOT EXISTS (\n            SELECT 1 FROM order_lines ol2\n            WHERE ol2.order_id = o.order_id AND ol2.qty_delivered < ol2.qty_ordered\n        ) AS in_full\n    FROM orders o\n    JOIN customers c ON c.customer_id = o.customer_id\n\n) AS base\nWHERE event_date BETWEEN ? AND ?",
+        "options": null,
+        "suggestions": null,
+        "message": null,
+        "usage": {
+          "input_tokens": 6283,
+          "output_tokens": 276,
+          "cost_usd": 0.022989000000000002
+        }
+      }
+    }
+  ]
+}

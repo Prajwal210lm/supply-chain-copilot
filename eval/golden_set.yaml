@@ -279,14 +279,14 @@ entries:
 
   - id: c24
     slice: clean
-    question: "average order value for e-commerce last quarter"
+    question: "average order value for traditional trade last quarter"
     expected:
       spec_type: metric_query
       metric: avg_order_value
       period: {grain: month, start: "2026-01", end: "2026-03"}
       filters:
-        - {dimension: customer_segment, values: ["e-commerce"]}
-    notes: "Last quarter = Q1 2026; verbatim segment mention 'e-commerce'."
+        - {dimension: customer_segment, values: ["traditional trade"]}
+    notes: "Last quarter = Q1 2026; verbatim segment mention 'traditional trade'."
 
   - id: c25
     slice: clean
