@@ -17,7 +17,7 @@ const SERIES = [
 ];
 
 const CONTACT = [
-  { label: "GitHub", href: "https://github.com/Prajwal210lm" },
+  { label: "GitHub", href: "https://github.com/Prajwal210lm/supply-chain-copilot" },
   { label: "LinkedIn", href: "https://linkedin.com/in/prajwal-prakash-naregal" },
   { label: "Email", href: "mailto:prajwal210.techfest@gmail.com" },
 ];
