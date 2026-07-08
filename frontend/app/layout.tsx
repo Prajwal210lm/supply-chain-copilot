@@ -26,7 +26,7 @@ const splineMono = Spline_Sans_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://supply-chain-copilot.vercel.app"),
+  metadataBase: new URL("https://supply-chain-copilot-nine.vercel.app"),
   title: "Supply Chain Copilot | Mawarid Distribution",
   description:
     "The answer is in the data; getting it out takes days. A conversational analyst for supply chain operations — plain-English questions become inspectable query specs, deterministic code computes the answers. 96.7% measured spec accuracy over four runs. All data synthetic; Mawarid Distribution is fictional.",
