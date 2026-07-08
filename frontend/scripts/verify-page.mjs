@@ -97,21 +97,30 @@ for (const viewport of [
   await page.close();
 }
 
-// OG + favicon assets served
+// OG + favicon assets served — fetched from inside the browser context
+// rather than Playwright's separate Node-side request client, which has
+// been seen to fail TLS negotiation against some hosts even when both
+// curl and real browser navigation succeed against the same URL.
 const assetPage = await browser.newPage();
+await assetPage.goto(base, { waitUntil: "domcontentloaded" });
 for (const asset of ["/og.png", "/favicon.png", "/icon.svg"]) {
-  const res = await assetPage.request.get(base + asset);
-  check(res.status() === 200, `${asset} serves 200 (got ${res.status()})`);
+  const status = await assetPage.evaluate(async (path) => {
+    const res = await fetch(path);
+    return res.status;
+  }, asset);
+  check(status === 200, `${asset} serves 200 (got ${status})`);
 }
 
 // OG meta present in the HTML head
-await assetPage.goto(base, { waitUntil: "domcontentloaded" });
 const ogMeta = await assetPage.locator("meta[property='og:image']").getAttribute("content");
 check(Boolean(ogMeta && ogMeta.includes("og.png")), `og:image meta present (got ${ogMeta})`);
 
 // 404 page is branded
-const notFound = await assetPage.request.get(base + "/this-does-not-exist");
-check(notFound.status() === 404, "unknown route returns 404");
+const notFoundStatus = await assetPage.evaluate(async (path) => {
+  const res = await fetch(path);
+  return res.status;
+}, "/this-does-not-exist");
+check(notFoundStatus === 404, "unknown route returns 404");
 await assetPage.goto(base + "/this-does-not-exist", { waitUntil: "domcontentloaded" });
 const notFoundText = await assetPage.getByText("This query returned no results").count();
 check(notFoundText === 1, "404 page carries the branded refusal");
