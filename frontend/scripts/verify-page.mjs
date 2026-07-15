@@ -30,11 +30,11 @@ for (const viewport of [
   console.log(`\n--- ${viewport.name} ---`);
 
   // All 5 turns present with their questions
-  const turnCount = await page.locator("ol > li[id^='turn-']").count();
+  const turnCount = await page.locator("article[id^='turn-']").count();
   check(turnCount === 5, `5 demo turns render (got ${turnCount})`);
 
   // Echo bars: one per turn, with structured fields
-  const echoCount = await page.getByText("Interpreted as").count();
+  const echoCount = await page.locator("[data-echo-bar]").count();
   check(echoCount === 5, `5 echo bars render (got ${echoCount})`);
   const metricFields = await page.locator("dt", { hasText: /^metric$/ }).count();
   check(metricFields === 5, `every echo bar has a METRIC field (got ${metricFields})`);
@@ -65,8 +65,8 @@ for (const viewport of [
   await page.locator("section#objections summary").first().click();
   const objOpen = await page.locator("section#objections details[open] p").first().isVisible();
   check(objOpen, "objection expands on click");
-  const beforeAfter = await page.getByText("With the copilot").count();
-  check(beforeAfter >= 1, "before/after comparison present");
+  const beforeAfter = await page.locator("[data-before-after]").count();
+  check(beforeAfter === 1, "before/after comparison present");
 
   // Nav + scroll-spy
   check((await page.locator("nav a[href^='#']").count()) >= 5, "nav renders section anchors");
@@ -134,16 +134,17 @@ const rmPage = await browser.newPage({
 await rmPage.goto(base, { waitUntil: "networkidle" });
 const heroVisible = await rmPage.locator("h1").isVisible();
 const revealHidden = await rmPage.evaluate(() => {
-  const els = Array.from(document.querySelectorAll("[data-reveal]"));
+  const els = Array.from(document.querySelectorAll(".reveal, .flow-node, .echo-field"));
   return els.filter((el) => getComputedStyle(el).opacity !== "1").length;
 });
 check(heroVisible && revealHidden === 0, `reduced-motion: all reveal sections visible (hidden=${revealHidden})`);
 
-// Keyboard: skip link is the first focusable element and becomes visible
+// Keyboard: skip link is the first focusable element and targets #main
 await rmPage.keyboard.press("Tab");
-const skipFocused = await rmPage.evaluate(
-  () => document.activeElement?.classList.contains("skip-link") ?? false,
-);
+const skipFocused = await rmPage.evaluate(() => {
+  const el = document.activeElement;
+  return el?.tagName === "A" && el.getAttribute("href") === "#main";
+});
 check(skipFocused, "skip-to-content link is the first focusable element");
 await rmPage.close();
 

@@ -1,25 +1,34 @@
-// Present but honest: the ask endpoint exists (key-gated, rate-limited),
-// and the public input ships in v2. Until then this control says exactly
-// what it is instead of pretending.
-export default function LiveInput() {
+import Reveal from "./ui/Reveal";
+
+/** Calm and honest: the live path exists behind an API secret; the public
+ *  page ships the saved thread. No spinner, no apology. */
+export default function LiveInput({ threadCostUsd }: { threadCostUsd: number }) {
   return (
-    <div className="no-print mt-14 sm:mt-16">
-      <div className="flex items-center gap-3 rounded-xl border border-line bg-raised px-4 py-3.5">
-        <input
-          type="text"
-          disabled
-          placeholder="Ask your own question…"
-          aria-label="Ask your own question (live input ships in v2)"
-          className="min-w-0 flex-1 bg-transparent text-[15px] text-ink placeholder:text-faint focus:outline-none disabled:cursor-not-allowed"
-        />
-        <span className="shrink-0 rounded-full border border-machine-line bg-machine px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent-deep">
-          v2
-        </span>
+    <Reveal>
+      <div className="rounded-xl border border-line bg-surface p-4 sm:p-5">
+        <label htmlFor="live-question" className="sr-only">
+          Ask a question (disabled in this demo)
+        </label>
+        <div className="flex items-center gap-3 rounded-lg border border-line-2 bg-panel px-4 py-3">
+          <span aria-hidden="true" className="font-mono text-sm text-accent-ink">
+            ❯
+          </span>
+          <input
+            id="live-question"
+            type="text"
+            disabled
+            placeholder="Ask about OTIF, fill rate, lead times, stockouts…"
+            className="w-full bg-transparent font-mono text-[13px] text-ink placeholder:text-ink-3 disabled:cursor-not-allowed"
+          />
+          <span className="shrink-0 rounded-full border border-line-2 px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.14em] text-ink-3">
+            live in v2
+          </span>
+        </div>
+        <p className="mt-3 font-mono text-[11px] text-ink-3">
+          The five answers above cost ${threadCostUsd.toFixed(2)} of model tokens, end to
+          end. The live endpoint runs behind an API secret with a daily cap.
+        </p>
       </div>
-      <p className="mt-2.5 font-mono text-[11px] leading-relaxed text-faint">
-        Live questions ship in v2. This page replays saved output from the real pipeline —
-        the five turns above cost $0.14 of tokens to produce.
-      </p>
-    </div>
+    </Reveal>
   );
 }

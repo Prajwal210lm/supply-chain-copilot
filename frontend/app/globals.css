@@ -1,323 +1,202 @@
 @import "tailwindcss";
 
-/* ==========================================================================
-   P4 design tokens — the single place the app's skin is defined.
-   Identity: light, cool, precise. Three voices (Fraunces speaks,
-   Instrument Sans reports, Spline Sans Mono is the machine) on layered
-   near-white surfaces with one indigo accent. Deliberately NOT P1's warm
-   cream editorial, P2's near-black terminal, or P3's grey teal console.
-   ========================================================================== */
-
+/* ---------------------------------------------------------------------------
+   Design tokens. The single source of truth for the entire surface.
+   Swap this block to reskin the app; components never carry raw hex.
+   World: an analyst's daylight workspace. Warm paper, ink text, indigo
+   machine voice, amber reserved for honesty flags. Green/red appear only
+   inside waterfall chart semantics, never in chrome.
+--------------------------------------------------------------------------- */
 :root {
-  /* Surfaces — layered light, not flat white */
-  --surface-base: #fafaf9;
-  --surface-raised: #ffffff;
-  --surface-sunken: #f3f3f0;
-  --surface-overlay: #fcfcfa;
-  --surface-machine: #eef0ff;
+  /* layered surfaces: base -> surface -> panel -> raised */
+  --base: #fbfaf7;
+  --surface: #ffffff;
+  --panel: #f4f1ea;
+  --raised: #ffffff;
+  --code: #26221b; /* the one deep surface: compiled SQL blocks */
 
-  /* Borders */
-  --border-subtle: #e8e8e4;
-  --border-emphasis: #d4d4cf;
-  --border-machine: #dcdcf2;
+  /* hairlines, two weights */
+  --line: #e8e3d9;
+  --line-2: #d6cfc0;
 
-  /* Text tiers (AA 4.5:1 on their surfaces) */
-  --text-primary: #1e1e24;
-  --text-secondary: #52525b;
-  --text-muted: #8e8e99;
+  /* text tiers, each >= 4.5:1 on the surfaces it sits on */
+  --ink: #211d17;
+  --ink-2: #57503f;
+  --ink-3: #6b6353;
+  --ink-on-code: #efeada;
+  --ink-on-code-muted: #a89f8c;
 
-  /* Accent */
-  --accent: #4338ca;
-  --accent-deep: #3730a3;
-  --accent-wash: #eef0ff;
-  --accent-glow: rgba(67, 56, 202, 0.1);
+  /* accent: indigo. -deep passes AA with white labels. */
+  --accent: #4f46e5;
+  --accent-deep: #4032c8;
+  --accent-ink: #3a30b4;
+  --accent-tint: #eeedfb;
+  --accent-line: #c8c4f2;
 
-  /* Semantic */
-  --positive: #15803d;
-  --negative: #b91c1c;
-  --neutral: #52525b;
+  /* highlight: amber, for honesty flags only */
+  --highlight: #b45309;
+  --highlight-tint: #fdf3e7;
 
-  /* Type scale: size / line-height / weight */
-  --text-hero-size: 2.75rem;
-  --text-hero-line: 1.1;
-  --text-hero-weight: 700;
-  --text-section-size: 1.75rem;
-  --text-section-line: 1.2;
-  --text-section-weight: 600;
-  --text-body-size: 1rem;
-  --text-body-line: 1.6;
-  --text-body-weight: 400;
-  --text-small-size: 0.875rem;
-  --text-small-line: 1.5;
-  --text-small-weight: 500;
-  --text-mono-size: 0.8125rem;
-  --text-mono-line: 1.5;
-  --text-mono-weight: 400;
-  --text-kicker-size: 0.6875rem;
-  --text-kicker-weight: 600;
-  --text-kicker-tracking: 0.12em;
+  /* semantic status triad: waterfall bars only */
+  --pos: #15803d;
+  --neg: #b91c1c;
+  --bar-neutral: #78716c;
+
+  --ring: #4f46e5;
 }
 
-/* Tailwind utility mapping — classes below are the only color names
-   components may use; every one resolves to a :root token above. */
 @theme inline {
-  --color-base: var(--surface-base);
-  --color-raised: var(--surface-raised);
-  --color-sunken: var(--surface-sunken);
-  --color-overlay: var(--surface-overlay);
-  --color-machine: var(--surface-machine);
-
-  --color-line: var(--border-subtle);
-  --color-line-strong: var(--border-emphasis);
-  --color-machine-line: var(--border-machine);
-
-  --color-ink: var(--text-primary);
-  --color-slate: var(--text-secondary);
-  --color-faint: var(--text-muted);
-
+  /* named "paper", not "base": a --color-base token would hijack the
+     text-base font-size utility and paint text paper-on-paper */
+  --color-paper: var(--base);
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-raised: var(--raised);
+  --color-code: var(--code);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-on-code: var(--ink-on-code);
+  --color-ink-on-code-muted: var(--ink-on-code-muted);
   --color-accent: var(--accent);
   --color-accent-deep: var(--accent-deep);
-  --color-accent-wash: var(--accent-wash);
-  --color-accent-glow: var(--accent-glow);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-tint: var(--accent-tint);
+  --color-accent-line: var(--accent-line);
+  --color-highlight: var(--highlight);
+  --color-highlight-tint: var(--highlight-tint);
+  --color-pos: var(--pos);
+  --color-neg: var(--neg);
+  --color-bar-neutral: var(--bar-neutral);
 
-  --color-positive: var(--positive);
-  --color-negative: var(--negative);
-  --color-neutral: var(--neutral);
-
-  --font-display: var(--font-fraunces), Georgia, serif;
-  --font-sans: var(--font-instrument), system-ui, sans-serif;
-  --font-mono: var(--font-spline-mono), ui-monospace, monospace;
+  --font-display: var(--font-bricolage);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-spline-mono);
 }
 
-/* Type roles */
-.type-hero {
-  font-family: var(--font-display);
-  font-size: var(--text-hero-size);
-  line-height: var(--text-hero-line);
-  font-weight: var(--text-hero-weight);
-  letter-spacing: -0.02em;
-}
-
-@media (min-width: 640px) {
-  .type-hero {
-    font-size: 3.5rem;
-  }
-}
-
-.type-section {
-  font-family: var(--font-display);
-  font-size: var(--text-section-size);
-  line-height: var(--text-section-line);
-  font-weight: var(--text-section-weight);
-  letter-spacing: -0.01em;
-}
-
-@media (min-width: 640px) {
-  .type-section {
-    font-size: 2.125rem;
-  }
-}
-
-.type-body {
-  font-family: var(--font-sans);
-  font-size: var(--text-body-size);
-  line-height: var(--text-body-line);
-  font-weight: var(--text-body-weight);
-}
-
-.type-small {
-  font-family: var(--font-sans);
-  font-size: var(--text-small-size);
-  line-height: var(--text-small-line);
-  font-weight: var(--text-small-weight);
-}
-
-.type-mono {
-  font-family: var(--font-mono);
-  font-size: var(--text-mono-size);
-  line-height: var(--text-mono-line);
-  font-weight: var(--text-mono-weight);
-}
-
-.type-kicker {
-  font-family: var(--font-mono);
-  font-size: var(--text-kicker-size);
-  line-height: 1;
-  font-weight: var(--text-kicker-weight);
-  letter-spacing: var(--text-kicker-tracking);
-  text-transform: uppercase;
-}
-
-/* Base */
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background: var(--surface-base);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
+  background: var(--base);
+  color: var(--ink);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--accent-glow);
+  background: var(--accent-tint);
+  color: var(--accent-ink);
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
   border-radius: 2px;
 }
 
-/* Interactive baseline: 150ms ease on the properties we animate */
-a,
-button,
-summary {
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease,
-    transform 150ms ease,
-    box-shadow 150ms ease;
-}
-
-/* ==========================================================================
-   Motion. Two systems, both fire once, both respect reduced-motion:
-   1. [data-reveal] — sections fade in with a 12px rise; siblings stagger
-      via --reveal-delay set inline.
-   2. The pipeline assembly + echo-bar field stagger (the two signature
-      moments) use the same pattern with component-specific classes.
-   ========================================================================== */
-
-[data-reveal] {
+/* ---------------------------------------------------------------------------
+   Reveal on scroll: fade + small rise, fires once. The .reveal class starts
+   hidden; JS adds .is-in when the element enters the viewport. If the user
+   prefers reduced motion (or JS never runs), content is simply visible.
+--------------------------------------------------------------------------- */
+.reveal {
   opacity: 0;
-  translate: 0 12px;
+  transform: translateY(14px);
   transition:
-    opacity 300ms ease var(--reveal-delay, 0ms),
-    translate 300ms ease var(--reveal-delay, 0ms);
+    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
 }
-
-[data-reveal].is-visible {
+.reveal.is-in {
   opacity: 1;
-  translate: 0 0;
+  transform: none;
 }
 
-/* Echo bar fields assemble when the turn scrolls into view */
+/* pipeline assembly: nodes appear in sequence, connectors draw */
+.flow-node {
+  opacity: 0;
+  transform: translateY(8px) scale(0.97);
+  transition:
+    opacity 0.45s ease-out,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--flow-delay, 0ms);
+}
+.flow-link {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.35s ease-out;
+  transition-delay: var(--flow-delay, 0ms);
+}
+.flow-link-v {
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform 0.35s ease-out;
+  transition-delay: var(--flow-delay, 0ms);
+}
+.is-in .flow-node {
+  opacity: 1;
+  transform: none;
+}
+.is-in .flow-link {
+  transform: scaleX(1);
+}
+.is-in .flow-link-v {
+  transform: scaleY(1);
+}
+
+/* echo bar fields: the page interprets in front of you */
 .echo-field {
   opacity: 0;
   transform: translateY(5px);
   transition:
-    opacity 450ms ease,
-    transform 450ms ease;
+    opacity 0.4s ease-out,
+    transform 0.4s ease-out;
+  transition-delay: var(--echo-delay, 0ms);
 }
-
-.echo-live .echo-field {
+.is-in .echo-field {
   opacity: 1;
-  transform: translateY(0);
-}
-
-/* Pipeline assembly: nodes appear in order, then connectors draw */
-.pipe-node {
-  opacity: 0;
-  transform: translateY(6px);
-  transition:
-    opacity 320ms ease var(--pipe-delay, 0ms),
-    transform 320ms ease var(--pipe-delay, 0ms);
-}
-
-.pipe-link {
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 260ms ease var(--pipe-delay, 0ms);
-}
-
-.pipe-link-vertical {
-  transform: scaleY(0);
-  transform-origin: center top;
-  transition: transform 260ms ease var(--pipe-delay, 0ms);
-}
-
-.pipe-assembled .pipe-node {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.pipe-assembled .pipe-link {
-  transform: scaleX(1);
-}
-
-.pipe-assembled .pipe-link-vertical {
-  transform: scaleY(1);
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-
-  [data-reveal],
-  .echo-field,
-  .pipe-node,
-  .pipe-link,
-  .pipe-link-vertical {
+  .reveal,
+  .flow-node,
+  .echo-field {
     opacity: 1;
     transform: none;
-    translate: 0 0;
     transition: none;
   }
-
-  a,
-  button,
-  summary {
+  .flow-link,
+  .flow-link-v {
+    transform: none;
     transition: none;
   }
 }
 
-/* ==========================================================================
-   Print: the conversation must read on white paper. Chrome (nav, skip
-   link, disabled input, motion states) drops away; surfaces flatten.
-   ========================================================================== */
-@media print {
-  :root {
-    --surface-base: #ffffff;
-    --surface-raised: #ffffff;
-    --surface-sunken: #f5f5f5;
-    --surface-machine: #f2f2f2;
-    --text-primary: #000000;
-    --text-secondary: #333333;
-    --text-muted: #555555;
-  }
-
-  nav,
-  .skip-link,
-  .no-print {
-    display: none !important;
-  }
-
-  [data-reveal],
-  .echo-field,
-  .pipe-node,
-  .pipe-link,
-  .pipe-link-vertical {
-    opacity: 1 !important;
-    transform: none !important;
-    translate: 0 0 !important;
-  }
+/* native disclosure styling (objections) */
+details.disclosure > summary {
+  list-style: none;
+  cursor: pointer;
 }
-
-/* Skip link: first focusable element, visible only on focus */
-.skip-link {
-  position: absolute;
-  left: 1rem;
-  top: -100%;
-  z-index: 100;
-  padding: 0.5rem 1rem;
-  background: var(--accent-deep);
-  color: #ffffff;
-  border-radius: 0.375rem;
+details.disclosure > summary::-webkit-details-marker {
+  display: none;
 }
-
-.skip-link:focus {
-  top: 1rem;
+details.disclosure > summary .disclosure-mark {
+  transition: transform 0.25s ease-out;
+}
+details.disclosure[open] > summary .disclosure-mark {
+  transform: rotate(45deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  details.disclosure > summary .disclosure-mark {
+    transition: none;
+  }
 }

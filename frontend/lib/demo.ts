@@ -1,25 +1,23 @@
-// Typed access to lib/demo_conversation.json — a synced copy of
-// data/demo_conversation.json (see scripts/sync-demo.mjs), which is the
-// saved output of five real pipeline runs. The page renders this file
-// directly; nothing on the demo path calls an API.
+import raw from "./demo_conversation.json";
 
-import demoJson from "./demo_conversation.json";
+/* ---------------------------------------------------------------------------
+   Typed access to data/demo_conversation.json (synced by scripts/sync-demo.mjs).
+   Every number the page shows comes from this file or is derived from it.
+--------------------------------------------------------------------------- */
 
 export type ChartPoint = {
   label: string;
-  value: number | null;
+  value: number;
   formatted: string;
-  color: string | null; // waterfall: "green" | "red" | "total"
+  color: "green" | "red" | "total" | null;
 };
 
-export type ChartData = {
-  type: "line" | "bar_horizontal" | "waterfall" | "stat_card";
+export type Chart = {
+  type: "line" | "waterfall" | "stat_card" | "bar";
   title: string;
   data: ChartPoint[];
-  axes: { x: string | null; y: string | null };
+  axes: { x: string; y: string } | null;
 };
-
-export type Filter = { dimension: string; values: string[] };
 
 export type Period = { grain: string; start: string; end: string };
 
@@ -30,10 +28,9 @@ export type Spec = {
   period_a?: Period;
   period_b?: Period;
   dimension?: string;
-  time_grain?: string | null;
-  filters?: Filter[];
-  top_n?: number;
-  sort?: string;
+  time_grain?: string;
+  grain?: string;
+  filters?: { dimension: string; values: string[] }[];
 };
 
 export type Usage = {
@@ -45,111 +42,110 @@ export type Usage = {
 export type TurnResponse = {
   type: string;
   spec: Spec;
-  echo_bar: string | null;
-  result: Record<string, unknown> | null;
+  echo_bar: string;
   narration: string | null;
-  narration_withheld: string | null;
-  chart: ChartData | null;
+  narration_withheld: boolean | null;
+  chart: Chart | null;
   sql: string | null;
   usage: Usage;
 };
 
 export type Turn = { question: string; response: TurnResponse };
 
-export const demoTurns: Turn[] = (demoJson as { turns: Turn[] }).turns;
+const data = raw as unknown as { placeholder: boolean; turns: Turn[] };
 
-// Static catalog metadata (display names for the 11 metrics) — reference
-// data, mirrored from copilot/registry.py's display_name column.
-const METRIC_DISPLAY: Record<string, string> = {
+export const turns: Turn[] = data.turns;
+
+export const threadCostUsd: number = turns.reduce(
+  (sum, t) => sum + t.response.usage.cost_usd,
+  0,
+);
+
+/* ---- display helpers ------------------------------------------------------ */
+
+const METRIC_NAMES: Record<string, string> = {
   otif_pct: "OTIF %",
   on_time_pct: "On-Time %",
   in_full_pct: "In-Full %",
   fill_rate_pct: "Fill Rate %",
   revenue: "Revenue",
   order_count: "Order Count",
-  avg_order_value: "Avg Order Value",
+  avg_order_value: "Average Order Value",
   inventory_value: "Inventory Value",
   days_of_cover: "Days of Cover",
   stockout_count: "Stockout Count",
-  avg_supplier_lead_time: "Average Supplier Lead Time",
+  avg_supplier_lead_time: "Avg Supplier Lead Time",
 };
 
-export type EchoField = { label: string; value: string };
-
-const MONTH_ABBR = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
-function monthLabel(iso: string): string {
-  // "2025-01" -> "Jan 2025"
-  const month = MONTH_ABBR[Number(iso.slice(5, 7)) - 1];
-  return month ? `${month} ${iso.slice(0, 4)}` : iso;
+export function formatMonth(iso: string): string {
+  const [y, m] = iso.split("-");
+  const idx = Number(m) - 1;
+  return MONTHS[idx] ? `${MONTHS[idx]} ${y}` : iso;
 }
 
-// Display formatting for a spec period — mirrors copilot/dateutil.py's
-// period_label so the echo bar reads identically to the backend's own
-// labels wherever the result object doesn't already carry one.
-function periodLabel(period: Period): string {
-  if (period.grain === "week") {
-    return period.start === period.end ? period.start : `${period.start} to ${period.end}`;
-  }
-  if (period.start === period.end) return monthLabel(period.start);
-  const startMonth = Number(period.start.slice(5, 7));
-  const endMonth = Number(period.end.slice(5, 7));
-  const sameYear = period.start.slice(0, 4) === period.end.slice(0, 4);
-  if (sameYear && [1, 4, 7, 10].includes(startMonth) && endMonth === startMonth + 2) {
-    return `Q${(startMonth - 1) / 3 + 1} ${period.start.slice(0, 4)}`;
-  }
-  return `${monthLabel(period.start)} to ${monthLabel(period.end)}`;
+export function shortMonth(iso: string): string {
+  const idx = Number(iso.split("-")[1]) - 1;
+  return MONTHS[idx] ?? iso;
 }
 
-// The structured reading of the question — derived from the validated
-// spec plus the result's period labels, never from model prose.
-export function echoFields(turn: Turn): EchoField[] {
-  const { spec, result, echo_bar } = turn.response;
-  const fields: EchoField[] = [];
+function formatPeriod(p: Period): string {
+  if (p.start === p.end) return formatMonth(p.start);
+  return `${formatMonth(p.start)} – ${formatMonth(p.end)}`;
+}
 
-  fields.push({
-    label: "metric",
-    value: METRIC_DISPLAY[spec.metric] ?? spec.metric,
-  });
+export type EchoField = { label: string; value: string; accent?: boolean };
 
-  const r = (result ?? {}) as Record<string, string | undefined>;
-  if (spec.spec_type === "change_decomposition") {
+/** The echo bar's structured fields, derived deterministically from the spec
+ *  the model actually emitted plus the backend's own echo string (which knows
+ *  registry facts the spec doesn't carry, e.g. line-grain OTIF variants). */
+export function echoFields(spec: Spec, echoText?: string): EchoField[] {
+  const fields: EchoField[] = [
+    { label: "metric", value: METRIC_NAMES[spec.metric] ?? spec.metric, accent: true },
+  ];
+
+  if (spec.spec_type === "change_decomposition" && spec.period_a && spec.period_b) {
     fields.push({
       label: "window",
-      value: `${r.period_b_label ?? spec.period_b?.start} vs ${r.period_a_label ?? spec.period_a?.start}`,
+      value: `${formatPeriod(spec.period_a)} → ${formatPeriod(spec.period_b)}`,
     });
-  } else if (r.period_label) {
-    fields.push({ label: "window", value: r.period_label });
   } else if (spec.period) {
-    fields.push({ label: "window", value: periodLabel(spec.period) });
+    fields.push({ label: "window", value: formatPeriod(spec.period) });
   }
 
-  if (spec.time_grain) {
-    fields.push({
-      label: "series",
-      value: spec.time_grain === "week" ? "weekly" : "monthly",
-    });
-  }
+  fields.push({ label: "cut by", value: spec.dimension ?? "—" });
 
-  if (spec.dimension) {
-    fields.push({ label: "cut by", value: spec.dimension });
-  }
+  const filters = spec.filters ?? [];
+  fields.push({
+    label: "filter",
+    value:
+      filters.length > 0
+        ? filters.map((f) => `${f.dimension} = ${f.values.join(", ")}`).join("; ")
+        : "—",
+  });
 
-  for (const f of spec.filters ?? []) {
-    fields.push({ label: "filter", value: `${f.dimension} = ${f.values.join(", ")}` });
-  }
-
-  if (echo_bar?.includes("line grain")) {
-    fields.push({ label: "grain", value: "line level" });
-  }
+  const grain = echoText?.includes("line grain")
+    ? "line"
+    : (spec.time_grain ?? spec.grain ?? (spec.period?.grain || "month"));
+  fields.push({ label: "grain", value: grain });
 
   return fields;
 }
 
-export function formatTokens(usage: Usage): string {
-  const total = usage.input_tokens + usage.output_tokens;
-  return `${total.toLocaleString("en-US")} tokens · $${usage.cost_usd.toFixed(3)}`;
+export function specTypeLabel(spec: Spec): string {
+  return spec.spec_type === "change_decomposition" ? "decomposition" : "metric query";
 }

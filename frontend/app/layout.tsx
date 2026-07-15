@@ -1,60 +1,64 @@
 import type { Metadata } from "next";
-import { Fraunces, Instrument_Sans, Spline_Sans_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Inter, Spline_Sans_Mono } from "next/font/google";
 import "./globals.css";
 
-// Three voices, one page: Fraunces speaks (headlines + the user's
-// questions), Instrument Sans reports (narration, UI), Spline Sans Mono
-// is the machine (specs, SQL, metadata). None of the three families
-// appear in P1, P2, or P3.
-const fraunces = Fraunces({
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--font-fraunces",
-  display: "swap",
+  weight: ["500", "600", "700"],
 });
 
-const instrument = Instrument_Sans({
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  variable: "--font-instrument",
-  display: "swap",
 });
 
 const splineMono = Spline_Sans_Mono({
-  subsets: ["latin"],
   variable: "--font-spline-mono",
-  display: "swap",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://supply-chain-copilot-nine.vercel.app"),
-  title: "Supply Chain Copilot | Mawarid Distribution",
+  title: "Supply Chain Copilot — grounded answers from operational data",
   description:
-    "The answer is in the data; getting it out takes days. A conversational analyst for supply chain operations — plain-English questions become inspectable query specs, deterministic code computes the answers. 96.7% measured spec accuracy over four runs. All data synthetic; Mawarid Distribution is fictional.",
+    "Every question about the data costs two days and an analyst. This copilot answers in seconds: plain-English questions become inspectable query specs, deterministic code computes every number. 96.7% measured spec accuracy, 100% adversarial refusal. All data synthetic; Mawarid Distribution is fictional.",
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/favicon.png", sizes: "32x32" }],
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
   },
   openGraph: {
-    title: "Supply Chain Copilot | Mawarid Distribution",
+    title: "Supply Chain Copilot",
     description:
-      "Ask in plain English, audit every answer. 96.7% measured spec accuracy over four independent runs.",
+      "Ask your supply chain a question. Get a grounded answer in seconds, not days. 96.7% measured spec accuracy; the model never writes SQL and never does arithmetic.",
     images: [{ url: "/og.png", width: 1200, height: 630 }],
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Supply Chain Copilot",
+    description:
+      "Plain-English questions over operational data, answered by tested code. The model never writes SQL and never does arithmetic.",
+    images: ["/og.png"],
   },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${fraunces.variable} ${instrument.variable} ${splineMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        <a href="#conversation" className="skip-link type-small">
-          Skip to the demo conversation
+    <html lang="en">
+      <body
+        className={`${bricolage.variable} ${inter.variable} ${splineMono.variable} font-body`}
+      >
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-lg focus:bg-accent-deep focus:px-4 focus:py-2 focus:text-sm focus:text-white"
+        >
+          Skip to content
         </a>
         {children}
       </body>

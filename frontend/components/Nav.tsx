@@ -1,77 +1,67 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
-const SECTIONS = [
-  { id: "problem", label: "The Problem" },
-  { id: "conversation", label: "Investigation" },
-  { id: "how", label: "Architecture" },
+const LINKS = [
+  { id: "problem", label: "Problem" },
+  { id: "approach", label: "Approach" },
+  { id: "conversation", label: "Demo" },
+  { id: "how", label: "Design" },
   { id: "measurement", label: "Measurement" },
   { id: "scope", label: "Scope" },
+  { id: "objections", label: "Objections" },
 ];
 
-// Sticky nav: transparent over the hero, bordered once scrolled past it.
-// Scroll-spy via one IntersectionObserver over the five section roots.
-// On mobile the anchor row horizontally scrolls — every target stays a
-// one-tap link, no hamburger to excavate.
+/** Sticky nav with scroll-spy: the section currently in view is highlighted. */
 export default function Nav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState<string | null>(null);
+  const [active, setActive] = useState<string>("");
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const targets = SECTIONS.map((s) => document.getElementById(s.id)).filter(
+    const sections = LINKS.map((l) => document.getElementById(l.id)).filter(
       (el): el is HTMLElement => el !== null,
     );
-    if (!targets.length) return;
-    const observer = new IntersectionObserver(
+    const io = new IntersectionObserver(
       (entries) => {
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
         if (visible[0]) setActive(visible[0].target.id);
       },
-      { rootMargin: "-20% 0px -60% 0px", threshold: [0, 0.2, 0.5] },
+      { rootMargin: "-25% 0px -60% 0px", threshold: [0, 0.1, 0.3] },
     );
-    targets.forEach((t) => observer.observe(t));
-    return () => observer.disconnect();
+    sections.forEach((s) => io.observe(s));
+    return () => io.disconnect();
   }, []);
 
   return (
-    <nav
-      aria-label="Sections"
-      className={`sticky top-0 z-50 bg-base/95 backdrop-blur-sm ${
-        scrolled ? "border-b border-line" : "border-b border-transparent"
-      }`}
-    >
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
-        <Link href="#problem" className="type-small shrink-0 text-ink hover:text-accent-deep">
+    <header className="sticky top-0 z-50 border-b border-line bg-paper/85 backdrop-blur-md">
+      <nav
+        aria-label="Sections"
+        className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5 sm:px-8"
+      >
+        <a
+          href="#top"
+          className="shrink-0 font-display text-[15px] font-semibold tracking-tight text-ink"
+        >
           Supply Chain Copilot
-        </Link>
-        <div className="-mx-1 flex min-w-0 items-center gap-1 overflow-x-auto px-1">
-          {SECTIONS.map((section) => (
+        </a>
+        <div className="flex items-center gap-1 overflow-x-auto">
+          {LINKS.map((l) => (
             <a
-              key={section.id}
-              href={`#${section.id}`}
-              aria-current={active === section.id ? "true" : undefined}
-              className={`whitespace-nowrap rounded-md px-2.5 py-2 font-mono text-[11px] ${
-                active === section.id
-                  ? "text-accent"
-                  : "text-slate hover:bg-accent-wash hover:text-accent-deep"
+              key={l.id}
+              href={`#${l.id}`}
+              aria-current={active === l.id ? "true" : undefined}
+              className={`whitespace-nowrap rounded-md px-2.5 py-1.5 font-mono text-[11px] tracking-[0.06em] transition-colors ${
+                active === l.id
+                  ? "bg-accent-tint text-accent-ink"
+                  : "text-ink-2 hover:text-ink"
               }`}
             >
-              {section.label}
+              {l.label}
             </a>
           ))}
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 }

@@ -1,79 +1,81 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { EchoField, Spec } from "@/lib/demo";
+import type { Spec } from "@/lib/demo";
+import { echoFields, specTypeLabel } from "@/lib/demo";
 
-// The trust surface. Between every question and answer sits the system's
-// reading of the question — derived from the validated spec, never from
-// model prose. The fields assemble once when the turn first scrolls into
-// view, and the exact JSON the validators consumed is one toggle away.
-// No dead controls: editing ships with live input in v2, so the
-// affordance here is inspection, which is real today.
-export default function EchoBar({
-  fields,
-  spec,
-}: {
-  fields: EchoField[];
-  spec: Spec;
-}) {
-  const [live, setLive] = useState(false);
-  const [specOpen, setSpecOpen] = useState(false);
+/** The signature trust element: the system's reading of your question,
+ *  rendered as structured machine fields before you look at any number.
+ *  Fields stagger in on first scroll-in; "view spec" reveals the raw JSON. */
+export default function EchoBar({ spec, echoText }: { spec: Spec; echoText?: string }) {
+  const [open, setOpen] = useState(false);
+  const [inView, setInView] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const fields = echoFields(spec, echoText);
 
   useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    const observer = new IntersectionObserver(
+    const el = ref.current;
+    if (!el) return;
+    // Under prefers-reduced-motion the CSS fallback shows the fields anyway.
+    const io = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
-          setLive(true);
-          observer.disconnect();
+          setInView(true);
+          io.disconnect();
         }
       },
-      { threshold: 0.4 },
+      { threshold: 0.3 },
     );
-    observer.observe(node);
-    return () => observer.disconnect();
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   return (
     <div
       ref={ref}
-      className={`rounded-lg border border-machine-line bg-machine ${live ? "echo-live" : ""}`}
+      data-echo-bar
+      className={`rounded-lg border border-line border-l-2 border-l-accent bg-panel transition-shadow duration-300 motion-reduce:transition-none hover:shadow-[0_0_0_3px_var(--accent-tint)] ${
+        inView ? "is-in" : ""
+      }`}
     >
-      <div className="flex items-center justify-between gap-3 border-b border-machine-line/70 px-4 py-2">
-        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-accent-deep">
-          Interpreted as
+      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-2">
+        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-ink">
+          interpreted as · {specTypeLabel(spec)}
         </span>
         <button
           type="button"
-          onClick={() => setSpecOpen((v) => !v)}
-          aria-expanded={specOpen}
-          className="-my-1 rounded-md px-2 py-1.5 font-mono text-[11px] text-slate hover:bg-accent-glow hover:text-accent-deep"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          className="rounded font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-2 underline decoration-line-2 underline-offset-4 transition-colors hover:text-accent-ink hover:decoration-accent-line"
         >
-          {specOpen ? "hide spec" : "view spec"} {"{}"}
+          {open ? "hide spec" : "view spec"}
         </button>
       </div>
 
-      <dl className="flex flex-wrap gap-x-6 gap-y-2.5 px-4 py-3">
-        {fields.map((field, i) => (
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-3 px-4 py-3.5 sm:grid-cols-5 sm:gap-x-4">
+        {fields.map((f, i) => (
           <div
-            key={field.label + field.value}
-            className="echo-field flex items-baseline gap-2"
-            style={{ transitionDelay: live ? `${i * 70}ms` : undefined }}
+            key={f.label}
+            className="echo-field min-w-0"
+            style={{ "--echo-delay": `${i * 90}ms` } as React.CSSProperties}
           >
-            <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
-              {field.label}
+            <dt className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-ink-3">
+              {f.label}
             </dt>
-            <dd className="font-mono text-[13px] font-medium text-ink">
-              {field.value}
+            <dd
+              className={`mt-1 truncate font-mono text-[12.5px] ${
+                f.accent ? "font-medium text-accent-ink" : "text-ink"
+              }`}
+              title={f.value}
+            >
+              {f.value}
             </dd>
           </div>
         ))}
       </dl>
 
-      {specOpen ? (
-        <pre className="overflow-x-auto border-t border-machine-line/70 px-4 py-3 font-mono text-xs leading-relaxed text-slate">
+      {open ? (
+        <pre className="overflow-x-auto border-t border-line bg-accent-tint/60 px-4 py-3 font-mono text-[11.5px] leading-relaxed text-accent-ink">
           {JSON.stringify(spec, null, 2)}
         </pre>
       ) : null}

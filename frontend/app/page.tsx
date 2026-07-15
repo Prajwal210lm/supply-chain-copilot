@@ -1,40 +1,31 @@
-import BeforeAfter from "@/components/BeforeAfter";
-import ConversationThread from "@/components/ConversationThread";
+import Approach from "@/components/Approach";
+import Architecture from "@/components/Architecture";
+import Conversation from "@/components/Conversation";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
-import HowItWorks from "@/components/HowItWorks";
 import Measurement from "@/components/Measurement";
 import Nav from "@/components/Nav";
 import Objections from "@/components/Objections";
-import ScopeHonesty from "@/components/ScopeHonesty";
-import Reveal from "@/components/ui/Reveal";
+import Problem from "@/components/Problem";
+import Scope from "@/components/Scope";
 
 export default function Home() {
   return (
-    <>
+    <div id="top">
       <Nav />
-      <main id="main" className="flex flex-col">
+      <main id="main">
         <Hero />
-        <div className="flex flex-col gap-24 sm:gap-32">
-          <Reveal>
-            <BeforeAfter />
-          </Reveal>
-          <Reveal>
-            <ConversationThread />
-          </Reveal>
-          <HowItWorks />
-          <Reveal>
-            <Measurement />
-          </Reveal>
-          <Reveal>
-            <Objections />
-          </Reveal>
-          <Reveal>
-            <ScopeHonesty />
-          </Reveal>
+        <div className="mx-auto max-w-6xl space-y-24 px-5 pb-24 sm:space-y-32 sm:px-8 sm:pb-32">
+          <Problem />
+          <Approach />
+          <Conversation />
+          <Architecture />
+          <Measurement />
+          <Scope />
+          <Objections />
         </div>
-        <Footer />
       </main>
-    </>
+      <Footer />
+    </div>
   );
 }

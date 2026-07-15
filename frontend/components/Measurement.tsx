@@ -1,102 +1,117 @@
-import CountUp from "./CountUp";
-import Panel from "./ui/Panel";
+import CountUp from "./ui/CountUp";
 import Reveal from "./ui/Reveal";
 import SectionHeading from "./ui/SectionHeading";
 
-// Section 4 — the accuracy claim, with the same rigor the numbers were
-// produced with: what was measured is explained before how it scored.
-
 const SLICES = [
-  { name: "Clean", definition: "straightforward questions a planner would actually ask" },
+  {
+    name: "Clean",
+    count: "30 questions",
+    desc: "Straightforward planner questions. “How did OTIF perform over the last year?” The baseline the tool must not miss.",
+  },
   {
     name: "Near-miss",
-    definition:
-      "questions built to trip metric confusion — fill rate vs in-full, stockout count vs days of cover",
+    count: "15 questions",
+    desc: "Built to trip metric confusion: fill rate vs in-full, stockout count vs days of cover. The slice that separates reading from pattern-matching.",
   },
-  { name: "Multi-turn", definition: "follow-ups that only make sense with the thread's context" },
-  { name: "Adversarial", definition: "injection attempts, write requests, out-of-scope asks" },
+  {
+    name: "Adversarial",
+    count: "25 questions",
+    desc: "Prompt injections, write requests, out-of-scope traps. The tool must refuse every single one; anything less blocks the release.",
+  },
 ];
 
-const ROWS: Array<{
-  slice: string;
-  value: number;
-  decimals: number;
-  note: string;
-}> = [
-  { slice: "Clean questions", value: 96.7, decimals: 1, note: "stable across all four runs" },
+const STATS: { value: number; decimals: number; suffix: string; label: string; note: string }[] = [
+  { value: 96.7, decimals: 1, suffix: "%", label: "clean", note: "stable across all four runs" },
+  { value: 93.3, decimals: 1, suffix: "%", label: "near-miss", note: "86.7–93.3% across runs; n11 is intermittent" },
+  { value: 100, decimals: 0, suffix: "%", label: "adversarial refusal", note: "25 of 25, every run — deploy-blocking" },
+  { value: 0, decimals: 0, suffix: "%", label: "unnecessary clarifications", note: "no clean question was answered with a question" },
+];
+
+const MISSES = [
   {
-    slice: "Near-miss disambiguation",
-    value: 93.3,
-    decimals: 1,
-    note: "range 86.7–93.3% across runs",
-  },
-  { slice: "Multi-turn follow-ups", value: 100, decimals: 0, note: "every run" },
-  {
-    slice: "Adversarial & injection",
-    value: 100,
-    decimals: 0,
-    note: "correct refusals with correct reason codes",
+    id: "n14",
+    tag: "fixed",
+    text: "“AUH” read as the emirate instead of the DC. Deterministic, caught by the near-miss slice, fixed with a disambiguation rule in the catalog.",
   },
   {
-    slice: "Unnecessary clarifications",
-    value: 0,
-    decimals: 0,
-    note: "when a sensible default exists, it answers",
+    id: "n11",
+    tag: "intermittent",
+    text: "Occasionally asks a clarifying question where a direct answer was expected. Disclosed rather than averaged away; it is why near-miss ranges to 86.7%.",
   },
 ];
 
 export default function Measurement() {
   return (
-    <section id="measurement" className="mx-auto w-full max-w-3xl scroll-mt-20 px-5 sm:px-8">
+    <section id="measurement" aria-label="The measurement" className="scroll-mt-20">
       <SectionHeading
-        kicker="Measurement"
-        title="Eighty questions, four independent runs."
-        intro="The same golden set of 80 questions, run four times against the live model before deploy — $8.04 of tokens. Three release gates (adversarial, accuracy, over-clarification), all passed. The set is split into slices, each designed to break the system a different way:"
+        kicker="the measurement"
+        title="Measured before it shipped, misses disclosed by name"
+        intro={
+          <>
+            An 80-question golden set, written and frozen before the interpreter
+            existed, run four independent times against the live model: $8.04 of tokens.
+            Three release gates (adversarial refusal, accuracy, over-clarification), all
+            passed before deploy. The set is sliced so each slice breaks the system a
+            different way; the three below carry the argument, alongside multi-turn
+            follow-ups (100%).
+          </>
+        }
       />
 
-      <dl className="flex max-w-2xl flex-col gap-1.5">
-        {SLICES.map((s) => (
-          <div key={s.name} className="flex gap-3 text-sm leading-relaxed">
-            <dt className="w-24 shrink-0 font-mono text-[13px] text-accent-deep">{s.name}</dt>
-            <dd className="text-slate">{s.definition}</dd>
-          </div>
-        ))}
-      </dl>
-
-      <Panel className="mt-8 overflow-hidden">
-        {ROWS.map((row, i) => (
-          <Reveal
-            key={row.slice}
-            delay={i * 80}
-            className={`flex flex-wrap items-baseline gap-x-6 gap-y-1 px-5 py-4 ${
-              i > 0 ? "border-t border-line" : ""
-            }`}
-          >
-            <span className="w-56 shrink-0 text-sm font-medium text-ink">{row.slice}</span>
-            <span className="font-display text-2xl font-semibold tracking-tight text-accent-deep">
-              <CountUp value={row.value} decimals={row.decimals} suffix="%" />
-            </span>
-            <span className="text-sm text-slate">{row.note}</span>
+      <div className="mt-10 grid gap-4 md:grid-cols-3">
+        {SLICES.map((s, i) => (
+          <Reveal key={s.name} delay={i * 110}>
+            <div className="h-full rounded-xl border border-line bg-surface p-5">
+              <div className="flex items-baseline justify-between">
+                <h3 className="font-display text-base font-semibold text-ink">{s.name}</h3>
+                <span className="font-mono text-[10.5px] text-ink-3">{s.count}</span>
+              </div>
+              <p className="mt-2 text-[13px] leading-relaxed text-ink-2">{s.desc}</p>
+            </div>
           </Reveal>
         ))}
-      </Panel>
+      </div>
 
-      <Panel className="mt-4 px-5 py-4">
-        <p className="type-kicker mb-3 text-negative">Known misses — disclosed, not buried</p>
-        <ul className="flex flex-col gap-2.5 text-sm leading-relaxed text-slate">
-          <li>
-            <span className="font-mono text-xs text-faint">n14</span> — &ldquo;how much stock
-            are we sitting on at AUH&rdquo; read AUH as the emirate, not the distribution
-            center. Deterministic (failed every run); fixed after measurement by calibrating
-            the entity resolver and listing DC members explicitly in the catalog.
-          </li>
-          <li>
-            <span className="font-mono text-xs text-faint">n11</span> — &ldquo;how often were
-            we out of beverages in Q2&rdquo; asked for a clarification instead of answering in
-            one of the four runs. Intermittent; still open.
-          </li>
-        </ul>
-      </Panel>
+      <Reveal delay={120} className="mt-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 rounded-xl border border-line bg-panel/70 p-6 sm:p-8 lg:grid-cols-4">
+          {STATS.map((s) => (
+            <div key={s.label}>
+              <div className="font-display text-4xl font-semibold tracking-tight text-ink sm:text-[2.6rem]">
+                <CountUp value={s.value} decimals={s.decimals} suffix={s.suffix} />
+              </div>
+              <div className="mt-1.5 font-mono text-[10.5px] uppercase tracking-[0.16em] text-ink-2">
+                {s.label}
+              </div>
+              <div className="mt-1 text-[12px] leading-snug text-ink-3">{s.note}</div>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+
+      <Reveal delay={160} className="mt-8">
+        <div className="rounded-xl border border-line bg-surface p-5 sm:p-6">
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-highlight">
+            known misses, by name
+          </div>
+          <ul className="mt-4 space-y-4">
+            {MISSES.map((m) => (
+              <li key={m.id} className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:gap-4">
+                <span className="flex shrink-0 items-baseline gap-2 sm:w-36">
+                  <span className="font-mono text-[13px] font-medium text-ink">{m.id}</span>
+                  <span className="rounded-full bg-highlight-tint px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-highlight">
+                    {m.tag}
+                  </span>
+                </span>
+                <p className="text-[13.5px] leading-relaxed text-ink-2">{m.text}</p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-5 border-t border-line pt-4 text-[13px] italic leading-relaxed text-ink-3">
+            100% adversarial refusal is a gate, not a target: one answered injection
+            stops the release.
+          </p>
+        </div>
+      </Reveal>
     </section>
   );
 }
