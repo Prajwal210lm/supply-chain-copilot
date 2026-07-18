@@ -47,6 +47,9 @@ export type TurnResponse = {
   narration_withheld: boolean | null;
   chart: Chart | null;
   sql: string | null;
+  options: string[] | null;
+  suggestions: string[] | null;
+  message: string | null;
   usage: Usage;
 };
 

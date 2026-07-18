@@ -1,7 +1,7 @@
-import { threadCostUsd, turns } from "@/lib/demo";
+import { turns } from "@/lib/demo";
 import SectionHeading from "./ui/SectionHeading";
 import Turn from "./Turn";
-import LiveInput from "./LiveInput";
+import LiveThread from "./LiveThread";
 
 /** Reader-voice glue between turns; the investigation's connective tissue. */
 const ANNOTATIONS: Record<number, string> = {
@@ -37,9 +37,7 @@ export default function Conversation() {
         ))}
       </ol>
 
-      <div className="mt-12">
-        <LiveInput threadCostUsd={threadCostUsd} />
-      </div>
+      <LiveThread demoTurnCount={turns.length} />
     </section>
   );
 }
