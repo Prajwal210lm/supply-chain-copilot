@@ -41,15 +41,14 @@ export default function Footer() {
     <footer aria-label="Contact and portfolio" className="border-t border-line bg-panel/50">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
         <Reveal className="max-w-2xl">
-          <Kicker>if you&rsquo;re hiring</Kicker>
+          <Kicker>the portfolio</Kicker>
           <h2 className="mt-3 font-display text-2xl font-semibold tracking-[-0.015em] text-ink sm:text-3xl">
-            I build AI systems that can prove what they claim.
+            Project 4 of a four-project AI supply-chain portfolio.
           </h2>
           <p className="mt-4 text-[14.5px] leading-relaxed text-ink-2">
-            This is Project 4 of a four-project AI supply-chain portfolio: same method
-            each time — pick an expensive operational question, build the system that
-            answers it honestly, measure it before shipping, and publish the misses next
-            to the wins.
+            Same method each time: pick an expensive operational question, build the
+            system that answers it honestly, measure it before shipping, and publish the
+            misses next to the wins.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             {CONTACT.map((c) => (
@@ -98,8 +97,8 @@ export default function Footer() {
 
         <div className="mt-14 flex flex-col gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-mono text-[10.5px] text-ink-3">
-            Built with Python · FastAPI · DuckDB · Pydantic · Claude Sonnet 4.6 · Next.js
-            · Recharts · Tailwind
+            Built with Python · FastAPI · DuckDB · Pydantic · Claude · Next.js ·
+            Recharts · Tailwind
           </p>
           <p className="font-mono text-[10.5px] text-ink-3">Built by Prajwal B</p>
         </div>

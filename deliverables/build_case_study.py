@@ -375,7 +375,7 @@ run(p, "This architecture applies wherever a client has structured operational d
 # ---- tech + disclaimer ------------------------------------------------------
 p = para(doc, before=8, after=2)
 run(p, "Built with  ", 9, bold=True, color=NAVY)
-run(p, "Python, FastAPI, DuckDB, Pydantic, Claude Sonnet 4.6, Next.js, Recharts, Tailwind.  "
+run(p, "Python, FastAPI, DuckDB, Pydantic, Claude, Next.js, Recharts, Tailwind.  "
        f"Verified by {N_TESTS} passing tests.", 9, color=INK)
 
 card = doc.add_table(rows=1, cols=1)

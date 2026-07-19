@@ -9,8 +9,8 @@ When on-time-in-full slips at a distributor like Mawarid, the demand planner's q
 closes that gap: a conversational interface over the operational data where a model turns a
 plain-English question into a typed, inspectable query spec — never SQL — and deterministic
 code compiles it, executes it against a read-only database, and narrates the result under a
-render gate that withholds any number it can't trace back to that computation. Built as a
-portfolio piece around a fictional GCC distributor (Mawarid Distribution); all data synthetic.
+render gate that withholds any number it can't trace back to that computation. Built around a
+fictional GCC distributor (Mawarid Distribution); all data synthetic.
 
 **Live:** [supply-chain-copilot-nine.vercel.app](https://supply-chain-copilot-nine.vercel.app) ·
 API: [supply-chain-copilot-production.up.railway.app](https://supply-chain-copilot-production.up.railway.app/api/health)
@@ -112,5 +112,4 @@ is unset, gates on the secret header (403), and rate-limits per IP and per day (
 - [P3 — OTIF Root-Cause Engine](https://otif-root-cause-engine.vercel.app)
 - P4 — Supply Chain Copilot (this repo)
 
-All data synthetic. Mawarid Distribution is fictional. Built to demonstrate architecture and
-methodology.
+All data synthetic. Mawarid Distribution is fictional.
