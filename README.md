@@ -13,7 +13,7 @@ render gate that withholds any number it can't trace back to that computation. B
 fictional GCC distributor (Mawarid Distribution); all data synthetic.
 
 **Live:** [supply-chain-copilot-nine.vercel.app](https://supply-chain-copilot-nine.vercel.app) ·
-API: [supply-chain-copilot-production.up.railway.app](https://supply-chain-copilot-production.up.railway.app/api/health)
+API: [supply-chain-copilot-production-133a.up.railway.app](https://supply-chain-copilot-production-133a.up.railway.app/api/health)
 
 ## Headline numbers
 
@@ -70,8 +70,9 @@ npm run dev                     # http://localhost:3000
 
 Everything works without a key: tests are mocked, and `GET /api/demo` serves a saved
 five-turn conversation produced by real pipeline runs. Setting `ANTHROPIC_API_KEY` and
-`API_SECRET` (see `.env.example`) enables live questions against `POST /api/ask` — not yet
-wired to the frontend's input, which ships in a later iteration.
+`API_SECRET` (see `.env.example`) enables live questions against `POST /api/ask`; the
+frontend's question input is wired to it — point the frontend at the backend with
+`NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_API_SECRET` (see `frontend/.env.example`).
 
 ## Architecture
 
