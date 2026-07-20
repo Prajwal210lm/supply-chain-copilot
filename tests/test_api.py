@@ -215,6 +215,51 @@ def test_ask_missing_question_is_422(tc, monkeypatch):
 
 
 # --------------------------------------------------------------------------
+# /api/ask — upstream failure returns a typed 502 with CORS, not a bare 500
+# --------------------------------------------------------------------------
+
+class RaisingClient:
+    """Simulates an upstream model failure (billing, timeout, 5xx)."""
+    def call(self, system, messages):
+        raise RuntimeError("simulated upstream failure")
+
+    def call_text(self, system, messages, max_tokens=None):
+        raise RuntimeError("simulated upstream failure")
+
+
+def test_ask_upstream_error_returns_typed_502(tc, monkeypatch):
+    _enable_ask(monkeypatch)
+    _override_llm(RaisingClient())
+    r = tc.post("/api/ask", json={"question": "otif last month"}, headers={"X-Api-Secret": "topsecret"})
+    assert r.status_code == 502
+    body = r.json()
+    assert body["type"] == "error"
+    assert body["message"] == "The AI service is temporarily unavailable. Your question wasn't counted."
+
+
+def test_ask_upstream_error_502_carries_cors_header(tc, monkeypatch):
+    _enable_ask(monkeypatch)
+    _override_llm(RaisingClient())
+    r = tc.post(
+        "/api/ask",
+        json={"question": "otif last month"},
+        headers={"X-Api-Secret": "topsecret", "Origin": "http://localhost:3000"},
+    )
+    assert r.status_code == 502
+    assert r.headers.get("access-control-allow-origin") == "http://localhost:3000"
+
+
+def test_ask_upstream_error_refunds_the_slot(tc, monkeypatch):
+    _enable_ask(monkeypatch)
+    _override_llm(RaisingClient())
+    r = tc.post("/api/ask", json={"question": "otif last month"}, headers={"X-Api-Secret": "topsecret"})
+    assert r.status_code == 502
+    # A failed run must not burn the daily cap or the caller's hourly allowance.
+    assert api._daily["count"] == 0
+    assert api._ip_hits.get("testclient", []) == []
+
+
+# --------------------------------------------------------------------------
 # /api/ask — throttling (all locked)
 # --------------------------------------------------------------------------
 

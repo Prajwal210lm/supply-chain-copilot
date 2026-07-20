@@ -65,7 +65,9 @@ export async function askQuestion(
   if (!res.ok) {
     let detail = "";
     try {
-      detail = (await res.json())?.detail ?? "";
+      const body = await res.json();
+      // typed upstream errors carry `message`; FastAPI HTTPExceptions carry `detail`
+      detail = body?.message ?? body?.detail ?? "";
     } catch {
       /* non-JSON error body */
     }
@@ -80,6 +82,9 @@ export function failureMessage(f: AskFailure): string {
   if (f.kind === "network")
     return "Couldn't reach the API. The question wasn't counted; check your connection and try again.";
   if (f.status === 429 && f.detail) return `${f.detail} The question wasn't counted.`;
+  // 502 carries a self-contained upstream message that already says the
+  // question wasn't counted — surface it as-is, no double-appending.
+  if (f.status === 502 && f.detail) return f.detail;
   if (f.status === 403)
     return "The API rejected this deployment's secret. The question wasn't counted.";
   if (f.status === 503)

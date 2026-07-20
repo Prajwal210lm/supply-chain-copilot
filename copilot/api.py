@@ -130,6 +130,20 @@ def _reserve_run_slot(ip: str) -> str | None:
         return None
 
 
+def _release_run_slot(ip: str) -> None:
+    """Undo a reservation booked by _reserve_run_slot when the run fails
+    upstream (model billing/timeout/error), so an outage doesn't burn the
+    daily cap or the caller's hourly allowance. Safe because Semaphore(1)
+    serializes the reserve/run/release window, so the last recorded hit for
+    this IP is the one we just booked."""
+    with _state_lock:
+        if _daily["count"] > 0:
+            _daily["count"] -= 1
+        hits = _ip_hits.get(ip)
+        if hits:
+            hits.pop()
+
+
 # --------------------------------------------------------------------------
 # Serialization helpers
 # --------------------------------------------------------------------------
@@ -264,9 +278,26 @@ def ask(
         ts = datetime.now(timezone.utc).isoformat()
         logger.info("ask start ts=%s ip=%s", ts, ip)
 
-        context_turns = [stage1.ContextTurn(question=t["question"], spec=t["spec"]) for t in context]
-        client_instance = make_llm()
-        result = pipeline.run_question(question, context_turns=context_turns, client_instance=client_instance)
+        try:
+            context_turns = [stage1.ContextTurn(question=t["question"], spec=t["spec"]) for t in context]
+            client_instance = make_llm()
+            result = pipeline.run_question(question, context_turns=context_turns, client_instance=client_instance)
+        except Exception:
+            # Upstream failure (model billing/timeout/error). Refund the booked
+            # slot and return a typed JSON error by RETURNING (not raising): a
+            # returned response flows back out through CORSMiddleware and carries
+            # the Access-Control-Allow-Origin header, whereas an unhandled
+            # exception is caught outside CORS and reaches the browser header-less
+            # (surfacing as an opaque "couldn't reach the API").
+            _release_run_slot(ip)
+            logger.exception("ask upstream error ts=%s ip=%s", ts, ip)
+            return JSONResponse(
+                status_code=502,
+                content={
+                    "type": "error",
+                    "message": "The AI service is temporarily unavailable. Your question wasn't counted.",
+                },
+            )
 
         logger.info(
             "ask done ts=%s ip=%s outcome=%s tokens_in=%s tokens_out=%s",
