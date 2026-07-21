@@ -58,7 +58,7 @@ export default function Hero() {
             label="per 5-question thread"
             sub="measured pipeline cost"
           />
-          <StatTile value="489" label="automated tests" sub="hand-verified fixtures" />
+          <StatTile value="492" label="automated tests" sub="hand-verified fixtures" />
         </Reveal>
 
         <Reveal delay={280} className="mt-12">

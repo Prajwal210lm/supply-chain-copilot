@@ -51,7 +51,7 @@ THREAD_COST = sum(t["response"]["usage"]["cost_usd"] for t in DEMO["turns"])
 N_TURNS = len(DEMO["turns"])
 
 # ---- audited measurement constants (four-run golden-set eval) ---------------
-N_TESTS = 489
+N_TESTS = 492
 N_METRICS = 11
 N_DIMENSIONS = 7
 N_QUERY_TYPES = 3
