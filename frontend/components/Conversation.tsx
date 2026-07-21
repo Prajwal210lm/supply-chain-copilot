@@ -37,7 +37,9 @@ export default function Conversation() {
         ))}
       </ol>
 
-      <LiveThread demoTurnCount={turns.length} />
+      <div className="mt-14 sm:mt-16">
+        <LiveThread demoTurnCount={turns.length} />
+      </div>
     </section>
   );
 }

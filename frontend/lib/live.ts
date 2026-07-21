@@ -100,7 +100,7 @@ export function failureMessage(f: AskFailure): string {
    0 used; the client snapshot takes over after hydration).
 --------------------------------------------------------------------------- */
 
-export const QUESTION_LIMIT = 10;
+export const QUESTION_LIMIT = 5;
 const STORAGE_KEY = "scc-live-used-v1";
 
 let listeners: (() => void)[] = [];
