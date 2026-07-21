@@ -77,11 +77,13 @@ export default function LiveInput({
           <input
             id="live-question"
             type="text"
+            inputMode="text"
+            enterKeyHint="send"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
             placeholder="Ask about OTIF, fill rate, lead times, stockouts…"
-            className="w-full bg-transparent py-2 font-mono text-[14.5px] text-ink placeholder:text-ink-3 disabled:cursor-not-allowed sm:py-2.5"
+            className="w-full bg-transparent py-2 font-mono text-[16px] text-ink placeholder:text-ink-3 disabled:cursor-not-allowed sm:py-2.5"
           />
           {exhausted ? (
             <span className="shrink-0 rounded-lg border border-line-2 bg-panel px-4 py-2.5 text-center font-mono text-[10.5px] uppercase tracking-[0.12em] text-ink-3">

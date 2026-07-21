@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ScrollFade from "./ui/ScrollFade";
 
 /** The compiled SQL, collapsed by default. The one deep surface on the page:
  *  a code block with an accent top bar. The model never wrote a line of it. */
@@ -25,9 +26,12 @@ export default function SqlToggle({ sql }: { sql: string }) {
               compiled by code · executed read-only
             </span>
           </div>
-          <pre className="overflow-x-auto bg-code px-4 pb-4 pt-2 font-mono text-[11.5px] leading-[1.7] text-ink-on-code">
-            {sql.trim()}
-          </pre>
+          <div className="relative">
+            <pre className="overflow-x-auto whitespace-pre bg-code px-4 pb-4 pt-2 font-mono text-[11.5px] leading-[1.7] text-ink-on-code">
+              {sql.trim()}
+            </pre>
+            <ScrollFade to="--code" />
+          </div>
         </div>
       ) : null}
     </div>

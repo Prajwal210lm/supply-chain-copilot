@@ -39,14 +39,15 @@ export default function EchoBar({ spec, echoText }: { spec: Spec; echoText?: str
       }`}
     >
       <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-2">
-        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-ink">
-          interpreted as · {specTypeLabel(spec)}
+        <span className="min-w-0 truncate font-mono text-[10px] uppercase tracking-[0.22em] text-accent-ink">
+          interpreted as
+          <span className="hidden sm:inline"> · {specTypeLabel(spec)}</span>
         </span>
         <button
           type="button"
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="rounded font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-2 underline decoration-line-2 underline-offset-4 transition-colors hover:text-accent-ink hover:decoration-accent-line"
+          className="shrink-0 whitespace-nowrap rounded font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-2 underline decoration-line-2 underline-offset-4 transition-colors hover:text-accent-ink hover:decoration-accent-line"
         >
           {open ? "hide spec" : "view spec"}
         </button>
@@ -63,9 +64,9 @@ export default function EchoBar({ spec, echoText }: { spec: Spec; echoText?: str
               {f.label}
             </dt>
             <dd
-              className={`mt-1 truncate font-mono text-[12.5px] ${
-                f.accent ? "font-medium text-accent-ink" : "text-ink"
-              }`}
+              className={`mt-1 font-mono text-[12.5px] ${
+                f.label === "window" ? "break-words" : "truncate"
+              } ${f.accent ? "font-medium text-accent-ink" : "text-ink"}`}
               title={f.value}
             >
               {f.value}
