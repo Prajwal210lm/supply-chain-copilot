@@ -1,4 +1,5 @@
 import { turns } from "@/lib/demo";
+import LiveNudge from "./LiveNudge";
 import SectionHeading from "./ui/SectionHeading";
 import Turn from "./Turn";
 import LiveThread from "./LiveThread";
@@ -28,6 +29,7 @@ export default function Conversation() {
           </>
         }
       />
+      <LiveNudge />
 
       <ol className="mt-10 list-none space-y-10 sm:mt-12">
         {turns.map((t, i) => (

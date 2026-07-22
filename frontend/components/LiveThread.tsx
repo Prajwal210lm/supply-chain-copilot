@@ -91,8 +91,9 @@ export default function LiveThread({ demoTurnCount }: { demoTurnCount: number })
   return (
     <Reveal>
       <div
+        id="live-question-card"
         data-live-thread
-        className="rounded-2xl border-2 border-accent-line bg-panel p-5 shadow-[0_24px_60px_-32px_rgba(79,70,229,0.35)] sm:p-8"
+        className="scroll-mt-24 rounded-2xl border-2 border-accent-line bg-panel p-5 shadow-[0_24px_60px_-32px_rgba(79,70,229,0.35)] sm:p-8"
       >
         <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-accent-ink">
           ask your own question

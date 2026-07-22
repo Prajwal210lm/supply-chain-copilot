@@ -200,3 +200,25 @@ details.disclosure[open] > summary .disclosure-mark {
     transition: none;
   }
 }
+
+/* live-question nudge: a brief arrival pulse on the card the nudge link
+   points to, so a smooth-scroll landing is unmistakable rather than just
+   "the page moved." One shot, 600ms, then settles back to the card's own
+   resting border/shadow. */
+@keyframes live-nudge-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--accent-tint);
+  }
+  30% {
+    box-shadow: 0 0 0 6px var(--accent-tint);
+  }
+}
+.live-nudge-pulse {
+  animation: live-nudge-pulse 600ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-nudge-pulse {
+    animation: none;
+  }
+}
