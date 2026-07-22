@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { scrollToLiveCardWithPulse } from "@/lib/scrollToLiveCard";
 
 const LINKS = [
   { id: "problem", label: "Problem" },
@@ -11,6 +12,28 @@ const LINKS = [
   { id: "scope", label: "Scope" },
   { id: "objections", label: "Objections" },
 ];
+
+/** The small "live" marker next to the Demo link: a static pill with one
+ *  tiny pulsing dot, not a whole breathing badge — the nav is sticky and
+ *  always on screen, so the animated surface stays deliberately minimal.
+ *  Its own click bypasses the Demo section entirely and jumps straight to
+ *  the live question card, same as the in-page nudge. */
+function LiveBadge({ onClick }: { onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick ?? (() => scrollToLiveCardWithPulse())}
+      aria-label="Jump to the live question input"
+      className="ml-1 inline-flex items-center gap-1 rounded-full bg-accent-tint px-1.5 py-0.5 font-mono text-[8px] font-medium uppercase tracking-[0.08em] text-accent-ink transition-colors hover:bg-accent-line"
+    >
+      <span
+        aria-hidden="true"
+        className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse motion-reduce:animate-none"
+      />
+      live
+    </button>
+  );
+}
 
 /** Sticky nav with scroll-spy: the section currently in view is highlighted.
  *  Desktop keeps the full link row. Below the sm breakpoint, seven links
@@ -68,21 +91,23 @@ export default function Nav() {
           Supply Chain Copilot
         </a>
 
-        {/* desktop: full link row, unchanged */}
+        {/* desktop: full link row, unchanged except the Demo link's badge */}
         <div className="hidden items-center gap-1 sm:flex">
           {LINKS.map((l) => (
-            <a
-              key={l.id}
-              href={`#${l.id}`}
-              aria-current={active === l.id ? "true" : undefined}
-              className={`whitespace-nowrap rounded-md px-2.5 py-1.5 font-mono text-[11px] tracking-[0.06em] transition-colors ${
-                active === l.id
-                  ? "bg-accent-tint text-accent-ink"
-                  : "text-ink-2 hover:text-ink"
-              }`}
-            >
-              {l.label}
-            </a>
+            <span key={l.id} className="inline-flex items-center">
+              <a
+                href={`#${l.id}`}
+                aria-current={active === l.id ? "true" : undefined}
+                className={`whitespace-nowrap rounded-md px-2.5 py-1.5 font-mono text-[11px] tracking-[0.06em] transition-colors ${
+                  active === l.id
+                    ? "bg-accent-tint text-accent-ink"
+                    : "text-ink-2 hover:text-ink"
+                }`}
+              >
+                {l.label}
+              </a>
+              {l.id === "conversation" ? <LiveBadge /> : null}
+            </span>
           ))}
         </div>
 
@@ -129,19 +154,33 @@ export default function Nav() {
           >
             <div className="flex flex-col gap-0.5 px-3 py-3">
               {LINKS.map((l) => (
-                <a
-                  key={l.id}
-                  href={`#${l.id}`}
-                  aria-current={active === l.id ? "true" : undefined}
-                  onClick={() => setMenuOpen(false)}
-                  className={`flex min-h-11 items-center rounded-md px-3.5 font-mono text-[13.5px] tracking-[0.04em] transition-colors ${
-                    active === l.id
-                      ? "bg-accent-tint text-accent-ink"
-                      : "text-ink-2"
-                  }`}
-                >
-                  {l.label}
-                </a>
+                <span key={l.id} className="flex items-center">
+                  <a
+                    href={`#${l.id}`}
+                    aria-current={active === l.id ? "true" : undefined}
+                    onClick={() => setMenuOpen(false)}
+                    className={`flex min-h-11 flex-1 items-center rounded-md px-3.5 font-mono text-[13.5px] tracking-[0.04em] transition-colors ${
+                      active === l.id
+                        ? "bg-accent-tint text-accent-ink"
+                        : "text-ink-2"
+                    }`}
+                  >
+                    {l.label}
+                  </a>
+                  {l.id === "conversation" ? (
+                    <LiveBadge
+                      onClick={() => {
+                        setMenuOpen(false);
+                        // Defer past this render: closing the drawer lifts
+                        // the body-scroll lock in an effect cleanup that
+                        // only runs after the state update commits, and
+                        // scrollIntoView is a no-op while overflow:hidden
+                        // is still in force.
+                        window.setTimeout(() => scrollToLiveCardWithPulse(), 60);
+                      }}
+                    />
+                  ) : null}
+                </span>
               ))}
             </div>
           </div>
