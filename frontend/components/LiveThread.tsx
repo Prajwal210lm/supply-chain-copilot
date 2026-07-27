@@ -93,7 +93,7 @@ export default function LiveThread({ demoTurnCount }: { demoTurnCount: number })
       <div
         id="live-question-card"
         data-live-thread
-        className="scroll-mt-24 rounded-2xl border-2 border-accent-line bg-panel p-5 shadow-[0_24px_60px_-32px_rgba(79,70,229,0.35)] sm:p-8"
+        className="scroll-mt-24 rounded-2xl border-2 border-accent-line bg-panel/70 p-5 shadow-[var(--elev-3),var(--glass-inner)] backdrop-blur-md sm:p-8"
       >
         <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-accent-ink">
           ask your own question
@@ -113,7 +113,7 @@ export default function LiveThread({ demoTurnCount }: { demoTurnCount: number })
               type="button"
               disabled={chipsDisabled}
               onClick={() => submit(q)}
-              className="rounded-full border border-line-2 bg-surface px-3.5 py-1.5 text-[12.5px] text-ink-2 transition-all duration-200 motion-reduce:transition-none hover:border-accent-line hover:bg-accent-tint hover:text-accent-ink disabled:cursor-not-allowed disabled:opacity-50"
+              className="tap rounded-full border border-line-2 bg-surface px-3.5 py-1.5 text-[12.5px] text-ink-2 hover:border-accent-line hover:bg-accent-tint hover:text-accent-ink disabled:cursor-not-allowed disabled:opacity-50"
             >
               {q}
             </button>
@@ -140,6 +140,7 @@ export default function LiveThread({ demoTurnCount }: { demoTurnCount: number })
                   index={demoTurnCount + i + 1}
                   onChip={(chip) => submit(chip)}
                   chipsDisabled={chipsDisabled}
+                  prevTurn={i > 0 ? turns[i - 1] : null}
                 />
               </li>
             ))}

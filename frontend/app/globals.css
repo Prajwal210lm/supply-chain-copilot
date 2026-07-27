@@ -13,6 +13,7 @@
   --surface: #ffffff;
   --panel: #f4f1ea;
   --raised: #ffffff;
+  --sunken: #f8f6f1; /* recessed wells: chart plots sit here */
   --code: #26221b; /* the one deep surface: compiled SQL blocks */
 
   /* hairlines, two weights */
@@ -43,6 +44,21 @@
   --bar-neutral: #78716c;
 
   --ring: #4f46e5;
+
+  /* ---- glass + elevation -------------------------------------------------
+     Light-theme glass: a translucent warm-white wash over whatever sits
+     behind it, a luminous 1px rim, and an inner top highlight so the card
+     reads as a lit physical surface rather than a filled rectangle. */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-strong: rgba(255, 255, 255, 0.86);
+  --glass-rim: rgba(255, 255, 255, 0.6);
+  --glass-inner: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  --elev-1: 0 1px 2px rgba(33, 29, 23, 0.04), 0 1px 1px rgba(33, 29, 23, 0.03);
+  --elev-2: 0 4px 14px -3px rgba(33, 29, 23, 0.07), 0 2px 5px -2px rgba(33, 29, 23, 0.04);
+  --elev-3: 0 14px 36px -10px rgba(33, 29, 23, 0.11), 0 5px 12px -4px rgba(33, 29, 23, 0.05);
+  --elev-accent: 0 6px 20px -6px rgba(79, 70, 229, 0.3);
+  --glow-accent: 0 0 0 1px var(--accent-line), 0 6px 22px -8px rgba(79, 70, 229, 0.35);
 }
 
 @theme inline {
@@ -52,6 +68,7 @@
   --color-surface: var(--surface);
   --color-panel: var(--panel);
   --color-raised: var(--raised);
+  --color-sunken: var(--sunken);
   --color-code: var(--code);
   --color-line: var(--line);
   --color-line-2: var(--line-2);
@@ -93,10 +110,142 @@ body {
   color: var(--accent-ink);
 }
 
+/* ---------------------------------------------------------------------------
+   Typographic defaults. Headings balance (no orphan last words), body text
+   uses `pretty` (no single-word last lines), and every numeral in the app is
+   tabular so stat columns and axis ticks line up rather than wobbling.
+--------------------------------------------------------------------------- */
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+p,
+li,
+dd,
+blockquote {
+  text-wrap: pretty;
+}
+/* Display sizes get tighter tracking the larger they run. */
+.font-display {
+  font-optical-sizing: auto;
+  font-variant-numeric: tabular-nums;
+}
+h1.font-display,
+.track-display-xl {
+  letter-spacing: -0.03em;
+}
+.tnum,
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Double-ring focus: crisp inner ring for contrast, soft tinted halo so it
+   reads as intentional design rather than a browser default. */
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 6px var(--accent-tint);
+}
+
+/* Thin accent scrollbar. Firefox gets the standard properties; WebKit/Blink
+   get the pseudo-elements. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-2);
+  border: 3px solid var(--base);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-line);
+}
+
+/* ---------------------------------------------------------------------------
+   Glass surfaces. `.glass` is the workhorse card; `.glass-strong` is for
+   surfaces that carry dense text and need more opacity behind it.
+--------------------------------------------------------------------------- */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  border: 1px solid var(--glass-rim);
+  box-shadow: var(--elev-2), var(--glass-inner);
+}
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid var(--glass-rim);
+  box-shadow: var(--elev-3), var(--glass-inner);
+}
+/* Cards that lift on hover. */
+.lift {
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease;
+}
+.lift:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--elev-3), var(--glass-inner);
+  border-color: var(--accent-line);
+}
+/* Interactive chrome: buttons, chips, nav pills. */
+.tap {
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.tap:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--elev-accent);
+}
+.tap:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Hero mesh gradient. Four offset radial washes drifting on a 30s cycle.
+   Pure CSS, no canvas, no JS — the whole effect is one animated element.
+--------------------------------------------------------------------------- */
+@keyframes mesh-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(2.5%, -1.5%, 0) scale(1.06);
+  }
+  66% {
+    transform: translate3d(-2%, 1.5%, 0) scale(1.03);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+.mesh {
+  background-image:
+    radial-gradient(38rem 22rem at 72% 8%, rgba(79, 70, 229, 0.13), transparent 68%),
+    radial-gradient(30rem 20rem at 20% 0%, rgba(180, 83, 9, 0.06), transparent 66%),
+    radial-gradient(26rem 18rem at 92% 42%, rgba(79, 70, 229, 0.08), transparent 70%),
+    radial-gradient(34rem 24rem at 44% 26%, rgba(200, 196, 242, 0.16), transparent 72%);
+  animation: mesh-drift 30s ease-in-out infinite;
+  will-change: transform;
 }
 
 /* ---------------------------------------------------------------------------
@@ -106,10 +255,10 @@ body {
 --------------------------------------------------------------------------- */
 .reveal {
   opacity: 0;
-  transform: translateY(14px);
+  transform: translateY(16px);
   transition:
-    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.4s ease,
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: var(--reveal-delay, 0ms);
 }
 .reveal.is-in {
@@ -117,7 +266,7 @@ body {
   transform: none;
 }
 
-/* pipeline assembly: nodes appear in sequence, connectors draw */
+/* pipeline assembly: nodes appear in sequence, connectors draw after */
 .flow-node {
   opacity: 0;
   transform: translateY(8px) scale(0.97);
@@ -149,6 +298,22 @@ body {
   transform: scaleY(1);
 }
 
+/* Model stages carry a soft indigo aura so "stochastic" reads visually
+   against the crisp, matte deterministic stages. */
+.flow-model {
+  box-shadow: 0 0 0 1px var(--accent-line), 0 4px 18px -6px rgba(79, 70, 229, 0.4);
+}
+
+/* The pipeline sits on an instrument panel: a faint measured grid. */
+.instrument {
+  background-color: color-mix(in srgb, var(--panel) 55%, transparent);
+  background-image:
+    linear-gradient(to right, rgba(33, 29, 23, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(33, 29, 23, 0.045) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: center center;
+}
+
 /* echo bar fields: the page interprets in front of you */
 .echo-field {
   opacity: 0;
@@ -163,6 +328,173 @@ body {
   transform: none;
 }
 
+/* Echo bar hover: the left rail brightens and a light sweep crosses the
+   fields, so the trust element feels responsive to attention. */
+.echo-rail {
+  transition: box-shadow 200ms ease, background-color 200ms ease;
+}
+.echo-shell:hover .echo-rail {
+  background-color: var(--accent);
+  box-shadow: 0 0 12px 0 rgba(79, 70, 229, 0.55);
+}
+.echo-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.echo-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.55) 45%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: none;
+}
+.echo-shell:hover .echo-sweep::after {
+  animation: echo-sweep 900ms ease-out;
+}
+@keyframes echo-sweep {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Animated disclosure. `grid-template-rows: 0fr -> 1fr` animates to the
+   content's own intrinsic height with no JS measurement and no fixed
+   max-height guess. Used by the spec toggle, the SQL panel, and objections.
+--------------------------------------------------------------------------- */
+.expando {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.expando > * {
+  overflow: hidden;
+  min-height: 0;
+}
+.expando[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+/* Native <details> equivalent: the row animates when the element is open.
+   Content stays in the DOM either way, which keeps find-in-page working. */
+details.disclosure .expando {
+  grid-template-rows: 0fr;
+}
+details.disclosure[open] .expando {
+  grid-template-rows: 1fr;
+}
+
+/* native disclosure styling (objections) */
+details.disclosure > summary {
+  list-style: none;
+  cursor: pointer;
+}
+details.disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+details.disclosure > summary .disclosure-mark {
+  transition:
+    transform 0.25s ease-out,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+details.disclosure[open] > summary .disclosure-mark {
+  transform: rotate(45deg);
+  background-color: var(--accent-tint);
+  border-color: var(--accent-line);
+  color: var(--accent-ink);
+}
+
+/* Nav link: underline slides in from the left on hover. */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 3px;
+  height: 1.5px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 180ms ease;
+}
+.nav-link:hover::after,
+.nav-link[aria-current="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Chart bars grow from the baseline once the plot scrolls into view. */
+.chart-grow .recharts-bar-rectangle,
+.chart-grow .recharts-rectangle {
+  transform: scaleY(0);
+  transform-origin: center bottom;
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.chart-grow.is-in .recharts-bar-rectangle,
+.chart-grow.is-in .recharts-rectangle {
+  transform: scaleY(1);
+}
+
+/* Recharts tooltip wrapper: give it the same glass treatment as cards. */
+.recharts-tooltip-wrapper {
+  filter: drop-shadow(0 6px 16px rgba(33, 29, 23, 0.12));
+}
+
+/* live-question nudge: a brief arrival pulse on the card the nudge link
+   points to, so a smooth-scroll landing is unmistakable rather than just
+   "the page moved." One shot, 600ms, then settles back to the card's own
+   resting border/shadow. */
+@keyframes live-nudge-pulse {
+  0%,
+  100% {
+    box-shadow: var(--elev-3), 0 0 0 0 var(--accent-tint);
+  }
+  30% {
+    box-shadow: var(--elev-3), 0 0 0 6px var(--accent-tint);
+  }
+}
+.live-nudge-pulse {
+  animation: live-nudge-pulse 600ms ease-out;
+}
+
+/* Mini-pipeline loader: the active stage pulses while the request is out. */
+@keyframes stage-active {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px var(--accent-line), 0 0 0 0 rgba(79, 70, 229, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 1px var(--accent), 0 0 0 5px rgba(79, 70, 229, 0.18);
+  }
+}
+.stage-active {
+  animation: stage-active 1.4s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion: nothing moves. Everything that animates in is simply
+   present, every transition is off, and all disclosures resolve to their
+   open/closed state instantly.
+--------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -179,46 +511,35 @@ body {
     transform: none;
     transition: none;
   }
-}
-
-/* native disclosure styling (objections) */
-details.disclosure > summary {
-  list-style: none;
-  cursor: pointer;
-}
-details.disclosure > summary::-webkit-details-marker {
-  display: none;
-}
-details.disclosure > summary .disclosure-mark {
-  transition: transform 0.25s ease-out;
-}
-details.disclosure[open] > summary .disclosure-mark {
-  transform: rotate(45deg);
-}
-@media (prefers-reduced-motion: reduce) {
+  .mesh {
+    animation: none;
+  }
+  .lift,
+  .tap,
+  .echo-rail,
+  .nav-link::after,
   details.disclosure > summary .disclosure-mark {
     transition: none;
   }
-}
-
-/* live-question nudge: a brief arrival pulse on the card the nudge link
-   points to, so a smooth-scroll landing is unmistakable rather than just
-   "the page moved." One shot, 600ms, then settles back to the card's own
-   resting border/shadow. */
-@keyframes live-nudge-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 var(--accent-tint);
+  .lift:hover,
+  .tap:hover,
+  .tap:active {
+    transform: none;
   }
-  30% {
-    box-shadow: 0 0 0 6px var(--accent-tint);
+  .echo-shell:hover .echo-sweep::after {
+    animation: none;
   }
-}
-.live-nudge-pulse {
-  animation: live-nudge-pulse 600ms ease-out;
-}
-@media (prefers-reduced-motion: reduce) {
-  .live-nudge-pulse {
+  .expando,
+  details.disclosure .expando {
+    transition: none;
+  }
+  .chart-grow .recharts-bar-rectangle,
+  .chart-grow .recharts-rectangle {
+    transform: none;
+    transition: none;
+  }
+  .live-nudge-pulse,
+  .stage-active {
     animation: none;
   }
 }

@@ -152,3 +152,30 @@ export function echoFields(spec: Spec, echoText?: string): EchoField[] {
 export function specTypeLabel(spec: Spec): string {
   return spec.spec_type === "change_decomposition" ? "decomposition" : "metric query";
 }
+
+/* ---------------------------------------------------------------------------
+   Context-carry diff. Purely presentational: given the fields of a turn and
+   the fields of the turn before it in the SAME thread, mark which values the
+   interpreter carried forward and which it changed. This makes multi-turn
+   context — otherwise an invisible achievement — legible on screen.
+
+   Fields that are "—" in both turns get no marker: technically inherited, but
+   labelling an absent filter as carried-forward is noise, not signal.
+--------------------------------------------------------------------------- */
+export type FieldOrigin = "inherited" | "changed";
+
+export function echoFieldOrigins(
+  fields: EchoField[],
+  prevFields: EchoField[] | null,
+): Record<string, FieldOrigin> {
+  if (!prevFields) return {};
+  const prev = new Map(prevFields.map((f) => [f.label, f.value]));
+  const out: Record<string, FieldOrigin> = {};
+  for (const f of fields) {
+    if (!prev.has(f.label)) continue;
+    const before = prev.get(f.label);
+    if (f.value === "—" && before === "—") continue;
+    out[f.label] = f.value === before ? "inherited" : "changed";
+  }
+  return out;
+}

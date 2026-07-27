@@ -82,13 +82,18 @@ export default function Objections() {
       />
 
       <Reveal delay={100} className="mt-10">
-        <div className="divide-y divide-line rounded-xl border border-line bg-surface">
-          {OBJECTIONS.map((o) => (
-            <details key={o.q} className="disclosure group px-5 sm:px-6">
+        <div className="glass divide-y divide-line overflow-hidden rounded-xl">
+          {OBJECTIONS.map((o, i) => (
+            <details key={o.q} className="disclosure group px-5 transition-colors hover:bg-white/40 sm:px-6">
               <summary className="flex items-center justify-between gap-4 py-4.5 sm:py-5">
-                <h3 className="font-display text-[15.5px] font-semibold leading-snug text-ink sm:text-[17px]">
-                  {o.q}
-                </h3>
+                <span className="flex min-w-0 items-baseline gap-3">
+                  <span className="shrink-0 font-mono text-[10.5px] text-ink-3">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="font-display text-[15.5px] font-semibold leading-snug text-ink sm:text-[17px]">
+                    {o.q}
+                  </h3>
+                </span>
                 <span
                   aria-hidden="true"
                   className="disclosure-mark grid h-6 w-6 shrink-0 place-items-center rounded-full border border-line-2 font-mono text-[13px] text-ink-2"
@@ -96,7 +101,15 @@ export default function Objections() {
                   +
                 </span>
               </summary>
-              <p className="max-w-3xl pb-5 text-[14px] leading-relaxed text-ink-2">{o.a}</p>
+              {/* Content stays mounted so the row height can animate and
+                  find-in-page still reaches collapsed answers. */}
+              <div className="expando">
+                <div>
+                  <p className="max-w-3xl pb-5 pl-0 text-[14px] leading-relaxed text-ink-2 sm:pl-8">
+                    {o.a}
+                  </p>
+                </div>
+              </div>
             </details>
           ))}
         </div>

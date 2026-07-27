@@ -27,7 +27,7 @@ export default function Scope() {
       <div className="mt-10 grid gap-4 md:grid-cols-3">
         {CARDS.map((c, i) => (
           <Reveal key={c.title} delay={i * 110}>
-            <div className="h-full rounded-xl border border-line bg-surface p-5">
+            <div className="glass lift h-full rounded-xl p-5">
               <h3 className="font-display text-base font-semibold text-ink">{c.title}</h3>
               <p className="mt-2.5 text-[13.5px] leading-relaxed text-ink-2">{c.body}</p>
             </div>

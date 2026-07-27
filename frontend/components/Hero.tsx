@@ -13,9 +13,11 @@ const CHIPS = [
 export default function Hero() {
   return (
     <section aria-label="Introduction" className="relative overflow-hidden">
+      {/* Animated mesh: four offset radial washes drifting on a 30s cycle.
+          Pure CSS — no canvas, no JS, static under reduced motion. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-105 bg-[radial-gradient(56rem_24rem_at_70%_-6rem,var(--accent-tint),transparent_70%)]"
+        className="mesh pointer-events-none absolute inset-x-0 top-0 h-140 origin-top"
       />
       <div className="relative mx-auto max-w-6xl px-5 pb-16 pt-16 sm:px-8 sm:pb-20 sm:pt-24">
         <Reveal>
@@ -35,13 +37,13 @@ export default function Hero() {
         <Reveal delay={120} className="mt-9 flex flex-wrap gap-3">
           <a
             href="#conversation"
-            className="rounded-lg bg-accent-deep px-5 py-2.5 text-[13.5px] font-medium text-white shadow-sm transition-[transform,box-shadow] duration-200 motion-reduce:transition-none hover:-translate-y-px hover:shadow-md motion-reduce:hover:translate-y-0"
+            className="tap rounded-lg bg-accent-deep px-5 py-2.5 text-[13.5px] font-medium text-white shadow-sm"
           >
             Read the thread
           </a>
           <a
             href="#how"
-            className="rounded-lg border border-line-2 bg-surface px-5 py-2.5 text-[13.5px] font-medium text-ink transition-colors hover:border-accent-line hover:text-accent-ink"
+            className="tap rounded-lg border border-line-2 bg-surface px-5 py-2.5 text-[13.5px] font-medium text-ink hover:border-accent-line hover:text-accent-ink"
           >
             How it&rsquo;s built
           </a>
@@ -50,15 +52,22 @@ export default function Hero() {
         <Reveal delay={200} className="mt-12 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-3">
           <StatTile
             value="96.7%"
+            count={{ to: 96.7, decimals: 1, suffix: "%" }}
             label="spec accuracy, clean"
             sub="stable across four eval runs"
           />
           <StatTile
             value={`$${threadCostUsd.toFixed(2)}`}
+            count={{ to: threadCostUsd, decimals: 2, prefix: "$" }}
             label="per 5-question thread"
             sub="measured pipeline cost"
           />
-          <StatTile value="492" label="automated tests" sub="hand-verified fixtures" />
+          <StatTile
+            value="492"
+            count={{ to: 492 }}
+            label="automated tests"
+            sub="hand-verified fixtures"
+          />
         </Reveal>
 
         <Reveal delay={280} className="mt-12">
@@ -70,7 +79,7 @@ export default function Hero() {
               <a
                 key={c.target}
                 href={`#${c.target}`}
-                className="group rounded-full border border-line-2 bg-surface px-4 py-2 text-[13px] text-ink-2 transition-all duration-200 motion-reduce:transition-none hover:border-accent-line hover:bg-accent-tint hover:text-accent-ink"
+                className="tap group rounded-full border border-line-2 bg-surface px-4 py-2 text-[13px] text-ink-2 hover:border-accent-line hover:bg-accent-tint hover:text-accent-ink"
               >
                 <span aria-hidden="true" className="mr-1.5 font-mono text-accent">
                   ❯

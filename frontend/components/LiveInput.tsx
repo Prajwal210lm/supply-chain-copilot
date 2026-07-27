@@ -11,28 +11,95 @@ const STAGE_LABEL: Record<Exclude<AskStatus, "idle">, string> = {
 };
 const STAGE_ORDER: Exclude<AskStatus, "idle">[] = ["interpreting", "computing", "narrating"];
 
-/** A three-segment progress track under the input while a question is in
- *  flight — makes a stageless wait (no streaming events to key off) read as
- *  purposeful rather than dead. Collapses to the plain label under reduced
- *  motion; the label itself is the real, accessible status either way. */
+/** The seven real pipeline stages, mapped onto the three status phases the
+ *  client can actually observe from a single request/response. */
+const PIPELINE_STAGES: {
+  label: string;
+  kind: "model" | "code";
+  phase: Exclude<AskStatus, "idle">;
+}[] = [
+  { label: "Interpret", kind: "model", phase: "interpreting" },
+  { label: "Validate", kind: "code", phase: "computing" },
+  { label: "Compile", kind: "code", phase: "computing" },
+  { label: "Execute", kind: "code", phase: "computing" },
+  { label: "Decompose", kind: "code", phase: "computing" },
+  { label: "Narrate", kind: "model", phase: "narrating" },
+  { label: "Render gate", kind: "code", phase: "narrating" },
+];
+
+/** While a question is in flight, the wait is spent showing the architecture
+ *  doing its job: the same seven stages the Design section explains, lighting
+ *  up as the request progresses. Model stages keep their indigo treatment.
+ *
+ *  The phases are time-based (one request carries no intermediate events), so
+ *  this is an honest illustration of stage ORDER, not a claim of live
+ *  telemetry. The text label remains the real accessible status. */
 function StageTrack({ status }: { status: AskStatus }) {
   if (status === "idle") return null;
-  const activeIdx = STAGE_ORDER.indexOf(status as Exclude<AskStatus, "idle">);
+  const activePhase = STAGE_ORDER.indexOf(status as Exclude<AskStatus, "idle">);
+
+  const stageState = (phase: Exclude<AskStatus, "idle">) => {
+    const idx = STAGE_ORDER.indexOf(phase);
+    return { done: idx < activePhase, active: idx === activePhase };
+  };
+
   return (
-    <div className="mt-3 flex items-center gap-4">
-      <div className="flex flex-1 gap-1.5" aria-hidden="true">
-        {STAGE_ORDER.map((s, i) => (
-          <span
-            key={s}
-            className={`h-1 flex-1 rounded-full transition-colors duration-500 motion-reduce:transition-none ${
-              i <= activeIdx ? "bg-accent" : "bg-line-2"
-            } ${i === activeIdx ? "animate-pulse motion-reduce:animate-none" : ""}`}
-          />
-        ))}
+    <div className="mt-4">
+      {/* Mobile: seven segments, no labels — at 390px each stage gets ~43px,
+          which cannot hold "Render gate" without truncating to noise. The
+          text status line below carries the meaning instead. */}
+      <div className="flex items-center gap-1 sm:hidden" aria-hidden="true">
+        {PIPELINE_STAGES.map((s) => {
+          const { done, active } = stageState(s.phase);
+          return (
+            <span
+              key={s.label}
+              className={`h-1.5 flex-1 rounded-full transition-colors duration-300 motion-reduce:transition-none ${
+                active
+                  ? "bg-accent"
+                  : done
+                    ? "bg-accent-line"
+                    : "bg-line-2"
+              } ${active ? "animate-pulse motion-reduce:animate-none" : ""}`}
+            />
+          );
+        })}
       </div>
-      <span className="shrink-0 font-mono text-[11px] text-accent-ink">
+
+      {/* sm+: the labelled stages, mirroring the Design section's diagram. */}
+      <div className="hidden items-center gap-1 sm:flex" aria-hidden="true">
+        {PIPELINE_STAGES.map((s, i) => {
+          const { done, active } = stageState(s.phase);
+          const model = s.kind === "model";
+          return (
+            <span key={s.label} className="flex min-w-0 flex-1 items-center gap-1">
+              {i > 0 ? (
+                <span
+                  className={`h-px w-1.5 shrink-0 transition-colors duration-300 motion-reduce:transition-none ${
+                    done || active ? "bg-accent-line" : "bg-line-2"
+                  }`}
+                />
+              ) : null}
+              <span
+                className={`min-w-0 flex-1 truncate rounded border px-1 py-1 text-center font-mono text-[8.5px] uppercase tracking-[0.04em] transition-colors duration-300 motion-reduce:transition-none ${
+                  active
+                    ? `stage-active border-accent-line ${model ? "bg-accent-tint text-accent-ink" : "bg-surface text-ink"}`
+                    : done
+                      ? "border-accent-line/60 bg-accent-tint/50 text-accent-ink"
+                      : "border-line bg-surface/70 text-ink-3"
+                }`}
+                title={s.label}
+              >
+                {s.label}
+              </span>
+            </span>
+          );
+        })}
+      </div>
+
+      <p className="mt-2 font-mono text-[11px] text-accent-ink">
         {STAGE_LABEL[status as Exclude<AskStatus, "idle">]}
-      </span>
+      </p>
     </div>
   );
 }

@@ -28,7 +28,7 @@ export default function Approach() {
           <a
             key={n.label}
             href="#how"
-            className="group rounded-lg border border-line bg-surface px-4 py-3 transition-all duration-200 motion-reduce:transition-none hover:-translate-y-0.5 hover:border-accent-line hover:shadow-[0_6px_20px_rgba(33,29,23,0.07)] motion-reduce:hover:translate-y-0"
+            className="glass lift group rounded-lg px-4 py-3"
           >
             <div className="font-mono text-[12px] font-medium text-ink group-hover:text-accent-ink">
               {n.label}

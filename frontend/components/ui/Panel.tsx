@@ -1,19 +1,21 @@
-/** Shared card surface: raised on base, hairline border, quiet hover lift. */
+/** Shared card surface. A layered glass plate: translucent warm-white wash,
+ *  luminous 1px rim, inner top highlight, and a soft cast shadow so it reads
+ *  as floating above the page rather than filled onto it. */
 export default function Panel({
   children,
   className = "",
   hover = false,
+  strong = false,
 }: {
   children: React.ReactNode;
   className?: string;
   hover?: boolean;
+  strong?: boolean;
 }) {
   return (
     <div
-      className={`rounded-xl border border-line bg-raised shadow-[0_1px_2px_rgba(33,29,23,0.04)] ${
-        hover
-          ? "transition-[transform,box-shadow] duration-300 motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(33,29,23,0.07)] motion-reduce:hover:translate-y-0"
-          : ""
+      className={`rounded-xl ${strong ? "glass-strong" : "glass"} ${
+        hover ? "lift" : ""
       } ${className}`}
     >
       {children}

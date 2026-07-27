@@ -22,10 +22,15 @@ export default function Turn({
   turn,
   index,
   annotation,
+  prevTurn,
 }: {
   turn: TurnData;
   index: number;
   annotation?: string;
+  /** The turn before this one in the SAME thread. Supplied for live
+   *  follow-ups so the echo bar can mark inherited vs changed fields; the
+   *  demo turns leave it unset (they are a separate, pre-built thread). */
+  prevTurn?: TurnData | null;
 }) {
   const { response } = turn;
   return (
@@ -49,7 +54,12 @@ export default function Turn({
         </div>
 
         <div className="mt-4 space-y-4">
-          <EchoBar spec={response.spec} echoText={response.echo_bar} />
+          <EchoBar
+            spec={response.spec}
+            echoText={response.echo_bar}
+            prevSpec={prevTurn?.response.spec ?? null}
+            prevEchoText={prevTurn?.response.echo_bar}
+          />
 
           <Panel className="px-4 py-4 sm:px-6 sm:py-5">
             {response.chart?.title && response.chart.type !== "stat_card" ? (

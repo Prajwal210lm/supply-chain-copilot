@@ -21,7 +21,10 @@ const STEP = 130; // ms between assembly beats
 export default function Pipeline() {
   return (
     <Reveal>
-      <div data-pipeline className="rounded-xl border border-line bg-panel/60 px-4 py-6 sm:px-6">
+      <div
+        data-pipeline
+        className="instrument rounded-2xl border border-line px-4 py-6 shadow-[var(--elev-2),var(--glass-inner)] sm:px-6"
+      >
         {/* desktop: one continuous row */}
         <div className="hidden items-center gap-2 md:flex">
           <FlowNode label="question" kind="terminal" delay={0} />

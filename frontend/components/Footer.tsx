@@ -78,7 +78,7 @@ export default function Footer() {
                 href={p.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-xl border border-line bg-surface p-4 transition-all duration-200 motion-reduce:transition-none hover:-translate-y-0.5 hover:border-accent-line hover:shadow-[0_6px_20px_rgba(33,29,23,0.07)] motion-reduce:hover:translate-y-0"
+                className="glass lift group rounded-xl p-4"
               >
                 <div className="flex items-baseline justify-between">
                   <span className="font-display text-[15px] font-semibold text-ink group-hover:text-accent-ink">

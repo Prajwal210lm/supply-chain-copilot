@@ -31,13 +31,22 @@ export default function Conversation() {
       />
       <LiveNudge />
 
-      <ol className="mt-10 list-none space-y-10 sm:mt-12">
-        {turns.map((t, i) => (
-          <li key={i}>
-            <Turn turn={t} index={i + 1} annotation={ANNOTATIONS[i + 1]} />
-          </li>
-        ))}
-      </ol>
+      {/* The thread is the centerpiece of the page: it sits on its own
+          recessed rail so the five turns read as one continuous artifact
+          rather than five loose cards. */}
+      <div className="relative mt-10 sm:mt-12">
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-0 -left-3 hidden w-px bg-gradient-to-b from-transparent via-line-2 to-transparent sm:block"
+        />
+        <ol className="list-none space-y-10">
+          {turns.map((t, i) => (
+            <li key={i}>
+              <Turn turn={t} index={i + 1} annotation={ANNOTATIONS[i + 1]} />
+            </li>
+          ))}
+        </ol>
+      </div>
 
       <div className="mt-14 sm:mt-16">
         <LiveThread demoTurnCount={turns.length} />

@@ -10,16 +10,18 @@ export default function LiveTurn({
   index,
   onChip,
   chipsDisabled,
+  prevTurn,
 }: {
   turn: LiveTurnData;
   index: number;
   onChip: (text: string) => void;
   chipsDisabled: boolean;
+  prevTurn?: LiveTurnData | null;
 }) {
   const { response } = turn;
 
   if (response.type === "answer") {
-    return <Turn turn={turn} index={index} />;
+    return <Turn turn={turn} index={index} prevTurn={prevTurn} />;
   }
 
   const isClarification = response.type === "clarification";
@@ -58,7 +60,7 @@ export default function LiveTurn({
                   type="button"
                   disabled={chipsDisabled}
                   onClick={() => onChip(c)}
-                  className="rounded-full border border-line-2 bg-surface px-4 py-2 text-[13px] text-ink-2 transition-all duration-200 motion-reduce:transition-none hover:border-accent-line hover:bg-accent-tint hover:text-accent-ink disabled:cursor-not-allowed disabled:opacity-50"
+                  className="tap rounded-full border border-line-2 bg-surface px-4 py-2 text-[13px] text-ink-2 hover:border-accent-line hover:bg-accent-tint hover:text-accent-ink disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span aria-hidden="true" className="mr-1.5 font-mono text-accent">
                     ❯

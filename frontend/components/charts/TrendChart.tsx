@@ -23,7 +23,7 @@ function TrendTooltip({ active, payload }: { active?: boolean; payload?: Tooltip
   if (!active || !payload?.length || !payload[0].payload) return null;
   const p = payload[0].payload;
   return (
-    <div className="rounded-md border border-line bg-surface px-2.5 py-1.5 font-mono text-xs text-ink shadow-sm">
+    <div className="rounded-md border border-[var(--glass-rim)] bg-white/80 px-2.5 py-1.5 font-mono text-xs text-ink shadow-[var(--elev-2)] backdrop-blur-md">
       <span className="text-ink-3">{shortMonth(p.label)}</span>{" "}
       <span className="font-semibold">{p.formatted}</span>
     </div>
@@ -35,7 +35,7 @@ export default function TrendChart({ chart }: { chart: Chart }) {
   const min = data.reduce((a, b) => (b.value < a.value ? b : a));
 
   return (
-    <div className="h-56 w-full sm:h-64" data-chart="line">
+    <div className="h-56 w-full rounded-lg bg-sunken/70 sm:h-64" data-chart="line">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 12, right: 14, bottom: 4, left: -14 }}>
           <XAxis

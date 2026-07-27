@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -29,6 +29,29 @@ function useIsMobile(): boolean {
   return isMobile;
 }
 
+/** Adds `is-in` once the plot scrolls into view, which lets CSS grow the bars
+ *  up from the baseline. Fires once. */
+function useGrowOnView<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setInView(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return { ref, inView };
+}
+
 const css = (name: string) =>
   typeof window === "undefined"
     ? undefined
@@ -55,6 +78,22 @@ function toWaterfall(data: ChartPoint[], floating: boolean) {
   });
 }
 
+/** Dashed step connectors at each running-total level, the convention that
+ *  makes a waterfall readable as a cascade rather than a row of bars. Only
+ *  meaningful in cumulative mode — in the trimmed mobile view the bars float
+ *  from zero, so there is no continuous running total to trace. */
+function connectorLevels(contributors: ChartPoint[], total: ChartPoint | null) {
+  const out: { from: string; to: string; y: number }[] = [];
+  let cum = 0;
+  for (let i = 0; i < contributors.length; i++) {
+    cum += contributors[i].value;
+    const next = i + 1 < contributors.length ? contributors[i + 1] : total;
+    if (!next) break;
+    out.push({ from: contributors[i].label, to: next.label, y: cum });
+  }
+  return out;
+}
+
 function barColor(color: string | null): string {
   if (color === "green") return css("--pos") ?? "#15803d";
   if (color === "red") return css("--neg") ?? "#b91c1c";
@@ -67,7 +106,7 @@ function WfTooltip({ active, payload }: { active?: boolean; payload?: TooltipPay
   if (!active || !payload?.length || !payload[0].payload) return null;
   const p = payload[0].payload;
   return (
-    <div className="rounded-md border border-line bg-surface px-2.5 py-1.5 font-mono text-xs text-ink shadow-sm">
+    <div className="rounded-md border border-[var(--glass-rim)] bg-white/80 px-2.5 py-1.5 font-mono text-xs text-ink shadow-[var(--elev-2)] backdrop-blur-md">
       <span className="text-ink-3">{p.label}</span>{" "}
       <span className="font-semibold">{p.formatted}</span>
     </div>
@@ -76,6 +115,7 @@ function WfTooltip({ active, payload }: { active?: boolean; payload?: TooltipPay
 
 export default function WaterfallChart({ chart }: { chart: Chart }) {
   const isMobile = useIsMobile();
+  const { ref, inView } = useGrowOnView<HTMLDivElement>();
 
   const contributors = chart.data.filter((d) => d.color !== "total");
   const total = chart.data.find((d) => d.color === "total") ?? null;
@@ -93,11 +133,17 @@ export default function WaterfallChart({ chart }: { chart: Chart }) {
 
   const data = toWaterfall(chartData, trimmedForMobile);
   const wide = !trimmedForMobile && data.length > 6;
+  const connectors = trimmedForMobile ? [] : connectorLevels(shownContributors, total);
 
   return (
     <div data-chart="waterfall">
       <div className={`relative ${wide ? "overflow-x-auto" : ""}`}>
-        <div className={`h-60 sm:h-64 ${wide ? "min-w-[600px]" : "w-full"}`}>
+        <div
+          ref={ref}
+          className={`chart-grow h-60 rounded-lg bg-sunken/70 sm:h-64 ${
+            inView ? "is-in" : ""
+          } ${wide ? "min-w-[600px]" : "w-full"}`}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 18, right: 8, bottom: 2, left: -18 }} barCategoryGap="24%">
               <XAxis
@@ -119,6 +165,18 @@ export default function WaterfallChart({ chart }: { chart: Chart }) {
               />
               <Tooltip content={<WfTooltip />} cursor={{ fill: css("--panel") }} />
               <ReferenceLine y={0} stroke={css("--line-2")} />
+              {connectors.map((c) => (
+                <ReferenceLine
+                  key={`${c.from}-${c.to}`}
+                  segment={[
+                    { x: c.from, y: c.y },
+                    { x: c.to, y: c.y },
+                  ]}
+                  stroke={css("--line-2")}
+                  strokeDasharray="3 3"
+                  strokeWidth={1}
+                />
+              ))}
               {/* invisible positioning bar */}
               <Bar dataKey="base" stackId="wf" fill="transparent" isAnimationActive={false} />
               <Bar dataKey="span" stackId="wf" isAnimationActive={false} radius={[2, 2, 2, 2]}>

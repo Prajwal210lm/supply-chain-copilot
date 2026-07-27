@@ -42,6 +42,30 @@ function LiveBadge({ onClick }: { onClick?: () => void }) {
 export default function Nav() {
   const [active, setActive] = useState<string>("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  // Scroll progress along the header's bottom edge. rAF-throttled so the
+  // listener can't fire more often than the compositor paints.
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      setProgress(max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const sections = LINKS.map((l) => document.getElementById(l.id)).filter(
@@ -79,7 +103,7 @@ export default function Nav() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-paper/85 backdrop-blur-md">
+    <header className="sticky top-0 z-50 bg-paper/80 backdrop-blur-xl backdrop-saturate-150">
       <nav
         aria-label="Sections"
         className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5 sm:px-8"
@@ -98,10 +122,8 @@ export default function Nav() {
               <a
                 href={`#${l.id}`}
                 aria-current={active === l.id ? "true" : undefined}
-                className={`whitespace-nowrap rounded-md px-2.5 py-1.5 font-mono text-[11px] tracking-[0.06em] transition-colors ${
-                  active === l.id
-                    ? "bg-accent-tint text-accent-ink"
-                    : "text-ink-2 hover:text-ink"
+                className={`nav-link whitespace-nowrap rounded-md px-2.5 py-1.5 font-mono text-[11px] tracking-[0.06em] transition-colors ${
+                  active === l.id ? "text-accent-ink" : "text-ink-2 hover:text-ink"
                 }`}
               >
                 {l.label}
@@ -139,6 +161,15 @@ export default function Nav() {
           </span>
         </button>
       </nav>
+
+      {/* Scroll progress replaces the header's bottom border: the faint track
+          IS the hairline, the accent fill shows position in the page. */}
+      <div aria-hidden="true" className="relative h-px w-full bg-line">
+        <div
+          className="absolute inset-y-0 left-0 bg-gradient-to-r from-accent-line to-accent"
+          style={{ width: `${(progress * 100).toFixed(2)}%` }}
+        />
+      </div>
 
       {menuOpen ? (
         <>

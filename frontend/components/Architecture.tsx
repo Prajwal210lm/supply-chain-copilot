@@ -65,7 +65,7 @@ export default function Architecture() {
       <div className="mt-10 grid gap-6 md:grid-cols-3">
         {CONSTRAINTS.map((c, i) => (
           <Reveal key={c.title} delay={i * 110} className="h-full">
-            <div className="h-full rounded-xl border border-line bg-surface p-5 transition-[transform,box-shadow] duration-300 motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(33,29,23,0.07)] motion-reduce:hover:translate-y-0">
+            <div className="glass lift h-full rounded-xl p-5">
               <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent-ink">
                 constraint {i + 1}
               </div>

@@ -1,5 +1,6 @@
 import CountUp from "./ui/CountUp";
 import Reveal from "./ui/Reveal";
+import RunStrip from "./ui/RunStrip";
 import SectionHeading from "./ui/SectionHeading";
 
 const SLICES = [
@@ -20,11 +21,50 @@ const SLICES = [
   },
 ];
 
-const STATS: { value: number; decimals: number; suffix: string; label: string; note: string }[] = [
-  { value: 96.7, decimals: 1, suffix: "%", label: "clean", note: "stable across all four runs" },
-  { value: 93.3, decimals: 1, suffix: "%", label: "near-miss", note: "86.7–93.3% across runs; n11 is intermittent" },
-  { value: 100, decimals: 0, suffix: "%", label: "adversarial refusal", note: "25 of 25, every run — deploy-blocking" },
-  { value: 0, decimals: 0, suffix: "%", label: "unnecessary clarifications", note: "no clean question was answered with a question" },
+/** `runs` are the actual per-run scores from the four committed eval result
+ *  files, in run order — so the strip under each number shows the real spread
+ *  rather than a stylised one. Near-miss dips on the fourth run, not the
+ *  first. */
+const STATS: {
+  value: number;
+  decimals: number;
+  suffix: string;
+  label: string;
+  note: string;
+  runs: number[];
+}[] = [
+  {
+    value: 96.7,
+    decimals: 1,
+    suffix: "%",
+    label: "clean",
+    note: "stable across all four runs",
+    runs: [96.7, 96.7, 96.7, 96.7],
+  },
+  {
+    value: 93.3,
+    decimals: 1,
+    suffix: "%",
+    label: "near-miss",
+    note: "86.7–93.3% across runs; n11 is intermittent",
+    runs: [93.3, 93.3, 93.3, 86.7],
+  },
+  {
+    value: 100,
+    decimals: 0,
+    suffix: "%",
+    label: "adversarial refusal",
+    note: "25 of 25, every run — deploy-blocking",
+    runs: [100, 100, 100, 100],
+  },
+  {
+    value: 0,
+    decimals: 0,
+    suffix: "%",
+    label: "unnecessary clarifications",
+    note: "no clean question was answered with a question",
+    runs: [0, 0, 0, 0],
+  },
 ];
 
 const MISSES = [
@@ -61,7 +101,7 @@ export default function Measurement() {
       <div className="mt-10 grid gap-4 md:grid-cols-3">
         {SLICES.map((s, i) => (
           <Reveal key={s.name} delay={i * 110}>
-            <div className="h-full rounded-xl border border-line bg-surface p-5">
+            <div className="glass lift h-full rounded-xl p-5">
               <div className="flex items-baseline justify-between">
                 <h3 className="font-display text-base font-semibold text-ink">{s.name}</h3>
                 <span className="font-mono text-[10.5px] text-ink-3">{s.count}</span>
@@ -83,13 +123,14 @@ export default function Measurement() {
                 {s.label}
               </div>
               <div className="mt-1 text-[12px] leading-snug text-ink-3">{s.note}</div>
+              <RunStrip values={s.runs} suffix={s.suffix} />
             </div>
           ))}
         </div>
       </Reveal>
 
       <Reveal delay={160} className="mt-8">
-        <div className="rounded-xl border border-line bg-surface p-5 sm:p-6">
+        <div className="glass rounded-xl p-5 sm:p-6">
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-highlight">
             known misses, by name
           </div>
