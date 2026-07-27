@@ -2,8 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/** Counts up when scrolled into view (not on mount). 800ms ease-out.
- *  Reduced motion renders the final value immediately. */
+/** Renders the real final value immediately — in the server HTML, and as the
+ *  first client paint — so there is never a zero to index or to flash before
+ *  JS runs. The count-up is progressive enhancement layered on top of an
+ *  already-correct number: once the tile scrolls into view (and motion isn't
+ *  reduced), it briefly counts up from zero over 800ms for a bit of life,
+ *  then settles back on the exact same value it started at. */
 export default function CountUp({
   value,
   decimals = 0,
@@ -18,21 +22,19 @@ export default function CountUp({
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [display, setDisplay] = useState(0);
+  const [display, setDisplay] = useState(value);
   const started = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const io = new IntersectionObserver(
       (entries) => {
         if (!entries.some((e) => e.isIntersecting) || started.current) return;
         started.current = true;
         io.disconnect();
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-          setDisplay(value);
-          return;
-        }
+        setDisplay(0);
         const t0 = performance.now();
         const dur = 800;
         const tick = (now: number) => {
